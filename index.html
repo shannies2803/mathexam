@@ -654,6 +654,29 @@ details.strand.olys{border-color:#6B3FD4}
 .toasts{top:calc(env(safe-area-inset-top,0px) + 70px)}
 @media (max-width:480px){.model{overflow-x:auto}.model svg.dg{min-width:520px}}
 .mkdel{min-height:32px;padding:2px 10px;margin-left:6px}
+/* ---- v24 ---- */
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.08;font-size:.84em;margin:0 .1em;position:relative}
+.fr>.fn{border-bottom:2px solid currentColor;padding:0 .18em}.fr>.fd{padding:0 .18em}
+.fr>.fs{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.keys .sp{font-size:15px;font-weight:700}
+.today{align-items:start}
+@media (min-width:761px) and (max-width:1100px){.today{grid-template-columns:1fr 1fr;grid-template-areas:"sp tc" "qu tc";grid-template-rows:auto 1fr}.today>.quests{align-self:start}.today>.sprint-cta{grid-area:sp}.today>.tcol{grid-area:tc}.today>.quests{grid-area:qu}}
+button.tychip{background:transparent;color:inherit;cursor:pointer;font:inherit;font-weight:700;font-size:13px}
+.kindlist{display:flex;flex-direction:column;gap:8px;width:100%;max-height:60vh;overflow:auto;text-align:left}
+.kindrow{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;font-size:15px;text-align:left;cursor:pointer}
+.kindrow.kdone{border-color:var(--ok)}.kindrow .kmark{color:var(--ok);font-weight:800}.kindrow .ktier{font-size:12px;color:var(--soft)}
+.ovcard:has(.kindlist){max-width:560px}
+.eoyband{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;padding:12px 16px;border:2px solid var(--a);border-radius:16px;background:color-mix(in srgb,var(--a) 14%,var(--card))}
+.eoyband b{font-size:18px;margin-right:6px}.eoyband .lvlnote{margin:0}
+.tsbox{margin:0 0 12px}.tsearch{width:100%;font:inherit;font-size:17px;padding:10px 14px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink)}
+.tsres{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.tsres:empty{display:none}
+.pjump{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;position:sticky;top:0;z-index:2;background:var(--card);padding:6px 0}
+.eoyrd .rdbar{width:40%}.eoyrd .rdbar .track{display:block}.eoyl{display:inline-flex;gap:8px;align-items:center;font-weight:700;margin:4px 0}
+.eoyd{font:inherit;padding:6px 8px;border:2px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
+.pvbtns{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}
+.mktrend svg{width:100%;max-width:420px;height:auto}.mktl{fill:none;stroke:var(--accent);stroke-width:3}.mktd{fill:var(--accent)}.mkt85{stroke:var(--ok);stroke-dasharray:5 4;stroke-width:1.5}
+.wsum{width:100%;font:inherit;font-size:15px;padding:10px;border:2px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
+@media print{.fr>.fn{border-bottom-color:#000}}
 </style>
 
 <div class="wrap">
@@ -1217,7 +1240,7 @@ sk('p3_muldiv',3,'Numbers','Multiply and divide',hi=>{
   if(!hi){const b=pick([6,7,8,9]),p=ri(24,99),g=ri(20,b*p-50);return{q:`There are ${N(b)} boxes with ${N(p)} pencils in each box. ${N(g)} pencils are given away. How many pencils are left?`,ans:b*p-g,unit:'pencils',steps:[`${b} × ${p} = ${b*p}`,`${b*p} − ${g} = ${b*p-g}`]}}
   const c=pick([6,7,8,9]);let P;do{P=ri(100,500)}while(P%c===0);const q=Math.floor(P/c),r=P%c;
   return{q:`${N(P)} pupils are going on a trip. Each van can take ${N(c)} pupils. How many vans are needed?`,ans:q+1,unit:'vans',steps:[`${P} ÷ ${c} = ${q} remainder ${r}`,`${q} vans are full. The last ${pl(r,'pupil')} still need${r===1?'s':''} a van.`,`${q} + 1 = ${q+1}`]}});
-sk('p3_frac',3,'Fractions','Equivalent fractions',hi=>{
+sk('p3_frac',3,'Fractions','Fractions',hi=>{
   if(!hi){const [a,b]=frac(pick([2,3,4,5,6])),k=ri(2,Math.floor(12/b));return{q:`Fill in the missing number.`+EQ(`${a}/${b} = ☐/${b*k}`),ans:a*k,steps:[`${b} × ${k} = ${b*k}`,`Multiply the top by ${k} too: ${a} × ${k} = ${a*k}`]}}
   let b,k,a,c,plus,v,D;do{b=pick([2,3,4,6]);k=pick([2,3,4,6]);D=b*k;a=ri(1,b-1);c=ri(1,D-1);plus=rnd()<.5;v=plus?a*k+c:a*k-c}while(D>12||gcd(a,b)!==1||gcd(c,D)!==1||v<=0||v>D||c*1===a*k);
   return{q:`Find the value. Give your answer in simplest form.`+EQ(`${a}/${b} ${plus?'+':'−'} ${c}/${D}`),ans:v/D,type:'frac',simp:true,ansText:fs(v,D),steps:[`Change ${a}/${b} into ${D}ths: ${a}/${b} = ${a*k}/${D}`,`${a*k}/${D} ${plus?'+':'−'} ${c}/${D} = ${v}/${D}`,...(fs(v,D)!==v+'/'+D?[`Simplest form: ${fs(v,D)}`]:[])]}});
@@ -4533,6 +4556,400 @@ AMV('eq_frac',[
 ]);
 })();
 
+/* ---- syllabus additions v24 ---- */
+/* ===== new syllabus topics: P1 order & position, P3 reading scales, P4 tables ===== */
+(()=>{
+/* ---------- P1 Order and position ---------- */
+function rowSVG(n,hl){const gap=46,W=n*gap+20,H=112;let s='';
+  for(let i=0;i<n;i++){const x=10+gap/2+i*gap,c=i===hl?'d-a':'d-e';
+    s+=`<circle class="${c}" cx="${rr(x)}" cy="26" r="13"/><rect class="${c}" x="${rr(x-14)}" y="44" width="28" height="34" rx="9"/>`}
+  s+=tx(10+gap/2,H-8,'left','d-sm2')+tx(W-10-gap/2,H-8,'right','d-sm2');
+  return sv(W,H,s,'A row of children',W)}
+const say=a=>a.length>1?a.slice(0,-1).join(', ')+' and '+a[a.length-1]:a[0];
+const P1A=[
+ ()=>{const n=ri(6,10),left=rnd()<.5;let i,a;do{i=ri(0,n-1);a=left?i+1:n-i}while(a<3||a>n-1);const side=left?'left':'right';
+  return{q:`Count from the ${side}. Which position is the coloured child in?`,svg:rowSVG(n,i),ans:a,steps:[`Start at the ${side} end. Point at each child in turn and count.`,`Stop at the coloured child: ${ord(a)} from the ${side}.`],vk:'p1_order:pos'}},
+ ()=>{const a=ri(1,6),b=a+ri(3,6),mid=[];for(let k=a+1;k<b;k++)mid.push(ord(k));
+  return{q:`Children stand in a line. How many children are between the ${N(ord(a))} child and the ${N(ord(b))} child?`,ans:b-a-1,unit:'children',steps:[`Do not count the ${ord(a)} or the ${ord(b)} child.`,`In between: the ${say(mid)}.`,`Count them: ${b-a-1} children.`],vk:'p1_order:between'}},
+ ()=>{let v;do{const t=ri(1,8);v=[10*t+ri(0,9),10*t+ri(0,9),...[0,1,2].map(()=>ri(10,99))]}while(new Set(v).size<5||v[0]===v[1]);v=shuffle(v);
+  const up=rnd()<.5,s=[...v].sort((x,y)=>up?x-y:y-x),k=ri(2,4);
+  return{q:`Put these numbers in order from ${up?'smallest to greatest':'greatest to smallest'}: ${v.map(x=>N(x)).join(', ')}. Which number is ${N(ord(k))}?`,ans:s[k-1],steps:[`Compare the tens digits first. If they are the same, compare the ones digits.`,`${up?'Smallest':'Greatest'} first: ${s.join(', ')}`,`The ${ord(k)} number is ${s[k-1]}.`],vk:'p1_order:order'}},
+ ()=>{const up=rnd()<.5,k=ri(3,8);let a,e;do{a=ri(15,92);e=up?a+k:a-k}while(e<10||e>100||Math.floor(a/10)===Math.floor(e/10)&&rnd()<.7);
+  const seq=[];for(let j=1;j<=k;j++)seq.push(up?a+j:a-j);
+  return{q:`Start at ${N(a)}. Count ${up?'on':'back'} ${N(k)}. Which number do you stop at?`,ans:e,steps:[`Say the next ${k} numbers going ${up?'up':'down'}. Use your fingers to keep count.`,`${seq.slice(0,-1).join(', ')}, …`,`You stop at ${e}.`],vk:'p1_order:count'}},
+ ()=>{const [n1,n2]=twoNames(),behind=rnd()<.5,k=ri(2,5);let p;do{p=ri(4,14)}while(!behind&&p-k<2);const ans=behind?p+k:p-k;
+  return{q:`${n1} is ${N(ord(p))} in a queue. ${n2} is the ${N(ord(k))} child ${behind?'behind':'in front of'} ${n1}. Which position is ${n2} in?`,ans,steps:[`${behind?'Behind':'In front of'} ${n1} means count ${behind?'on':'back'} from ${p}.`,`${p} ${behind?'+':'−'} ${k} = ${ans}`,`${n2} is ${ord(ans)} in the queue.`],vk:'p1_order:after'}}
+];
+const P1H=[
+ ()=>{const n=pick(NAMES),f=ri(3,12),b=ri(3,12);
+  return{q:`${n} is ${N(ord(f))} from the front of a line. ${n} is also ${N(ord(b))} from the back. How many children are in the line?`,ans:f+b-1,unit:'children',steps:[`In front of ${n}: ${f} − 1 = ${f-1}`,`Behind ${n}: ${b} − 1 = ${b-1}`,`${f-1} + 1 + ${b-1} = ${f+b-1} children`],vk:'p1_order:total'}},
+ ()=>{const n=pick(NAMES);let T,p,a;do{T=ri(10,20);p=ri(3,T-3);a=T-p+1}while(a===T||a===p);
+  return{q:`There are ${N(T)} children in a line. ${n} is ${N(ord(p))} from the front. Which position is ${n} from the back?`,ans:a,steps:[`Children behind ${n}: ${T} − ${p} = ${T-p}`,`Count ${n} too: ${T-p} + 1 = ${a}`,`${n} is ${ord(a)} from the back.`],vk:'p1_order:fromback'}},
+ ()=>{const [n1,n2]=twoNames();let T,a,r,pr;do{T=ri(10,16);a=ri(2,5);r=ri(2,6);pr=T-r+1}while(pr-a<3);const ans=pr-a-1;
+  return{q:`There are ${N(T)} children in a row. ${n1} is ${N(ord(a))} from the left. ${n2} is ${N(ord(r))} from the right. How many children are between them?`,ans,unit:'children',steps:[`${n2} from the left: ${T} − ${r} + 1 = ${pr}, so ${ord(pr)}`,`Between the ${ord(a)} and the ${ord(pr)}: ${ord(a+1)} to ${ord(pr-1)}`,`${pr-1} − ${a} = ${ans} children`],vk:'p1_order:betweentwo'}},
+ ()=>{const d=shuffle([1,2,3,4,5,6,7,8,9]).slice(0,3),all=[];for(const x of d)for(const y of d)if(x!==y)all.push(10*x+y);const up=rnd()<.5,s=[...all].sort((x,y)=>up?x-y:y-x),k=ri(2,5);
+  return{q:`Make 2-digit numbers using two different digits from ${N(d[0])}, ${N(d[1])} and ${N(d[2])}. Put them in order from ${up?'smallest to greatest':'greatest to smallest'}. Which number is ${N(ord(k))}?`,ans:s[k-1],steps:[`Pick a tens digit, then use one of the other two digits for the ones. You get 6 numbers.`,`${up?'Smallest':'Greatest'} first: ${s.join(', ')}`,`The ${ord(k)} number is ${s[k-1]}.`],vk:'p1_order:digits'}},
+ ()=>{const n=pick(NAMES);let p,l,j,ans;do{p=ri(7,15);l=ri(2,p-4);j=ri(1,4);ans=p-l+j}while([p,l,j,p-l].includes(ans));
+  return{q:`${n} is ${N(ord(p))} in a queue. ${N(l)} children in front of ${n} leave. Then ${N(j)} ${j>1?'children join':'child joins'} in front of ${n}. Which position is ${n} now?`,ans,steps:[`${l} leave: ${p} − ${l} = ${p-l}, so ${ord(p-l)}`,`${j} join${j>1?'':'s'} in front: ${p-l} + ${j} = ${ans}`,`${n} is ${ord(ans)} now.`],vk:'p1_order:queue'}},
+ ()=>{const n=ri(6,9),i=ri(1,n-2),j=ri(2,4),js=pick(['left','right']),as=pick(['left','right']),base=as==='left'?i+1:n-i,ans=base+(js===as?j:0);
+  return{q:`${N(j)} more children join the ${js} end of this row. Now, which position is the coloured child from the ${as}?`,svg:rowSVG(n,i),ans,steps:[`Now the coloured child is ${ord(base)} from the ${as}.`,js===as?`${j} children join on the ${as} side: ${base} + ${j} = ${ans}`:`They join at the other end, so counting from the ${as} does not change.`,`The coloured child is ${ord(ans)} from the ${as}.`],vk:'p1_order:rowjoin'}}
+];
+sk('p1_order',1,'Numbers','Order and position',hi=>pick(hi?P1H:P1A)());
+
+/* ---------- P3 Reading scales ---------- */
+const DIAL=[{u:'g',M:100,k:5,mx:500},{u:'g',M:100,k:10,mx:500},{u:'g',M:100,k:4,mx:600},{u:'g',M:200,k:4,mx:1000},{u:'g',M:500,k:5,mx:2000},{u:'g',M:200,k:2,mx:1000}];
+const DIALKG=[{u:'kg',M:1000,k:5,mx:5000},{u:'kg',M:1000,k:4,mx:4000},{u:'kg',M:1000,k:10,mx:3000},{u:'kg',M:1000,k:2,mx:6000}];
+const BEAK=[{u:'mℓ',M:100,k:5,mx:500},{u:'mℓ',M:100,k:4,mx:500},{u:'mℓ',M:100,k:10,mx:300},{u:'mℓ',M:200,k:4,mx:1000},{u:'mℓ',M:500,k:5,mx:2000},{u:'ℓ',M:1000,k:5,mx:3000},{u:'ℓ',M:1000,k:4,mx:2000},{u:'ℓ',M:1000,k:10,mx:2000}];
+const dv=sp=>sp.M/sp.k;
+const vals=(sp,lo,hi)=>{const d=dv(sp),o=[];for(let v=d;v<sp.mx;v+=d)if(v>=lo&&v<=hi&&v%sp.M)o.push(v);return o};
+const pv=(sp,lo,hi)=>pick(vals(sp,lo==null?sp.M:lo,hi==null?sp.mx-dv(sp):hi));
+const gu=sp=>sp.u==='kg'?'g':sp.u==='ℓ'?'mℓ':sp.u;
+const blab=(sp,v)=>sp.u==='ℓ'?(v%1000?v+' mℓ':v/1000+' ℓ'):sp.u==='kg'?(v%1000?v+' g':v/1000+' kg'):v+' '+sp.u;
+function dialG(sp,v,cap,dx){const cx=130,cy=150,P=(val,r)=>{const a=(-135+270*val/sp.mx)*Math.PI/180;return[cx+r*Math.sin(a),cy-r*Math.cos(a)]},d=dv(sp);
+  let s=`<rect class="d-s" x="55" y="8" width="150" height="14" rx="7"/><rect class="d-e" x="118" y="22" width="24" height="16"/><circle class="d-face" cx="${cx}" cy="${cy}" r="112"/>`;
+  for(let x=0;x<=sp.mx;x+=d){const b=x%sp.M===0,[x1,y1]=P(x,b?82:92),[x2,y2]=P(x,104);s+=ln(x1,y1,x2,y2,b?'d-tick b':'d-tick');
+    if(b){const [lx,ly]=P(x,64);s+=tx(lx,ly+5,sp.u==='kg'?x/1000:x,'d-sm2')}}
+  const [px,py]=P(v,98);s+=tx(cx,cy+50,sp.u,'d-sm')+ln(cx,cy,px,py,'d-mh')+`<circle class="d-dot" cx="${cx}" cy="${cy}" r="6"/>`;
+  if(cap)s+=tx(cx,292,cap,'d-t');
+  return `<g transform="translate(${dx||0},0)">${s}</g>`}
+function beakG(sp,v,cap,dx){const y=x=>286-x/sp.mx*240,d=dv(sp);
+  let s=`<rect class="d-w" x="91" y="${rr(y(v))}" width="98" height="${rr(287-y(v))}"/>`+ln(91,y(v),189,y(v),'d-pl')+`<path class="d-l" d="M86 30 L90 34 V280 Q90 288 98 288 H182 Q190 288 190 280 V34 L194 30"/>`;
+  for(let x=d;x<=sp.mx;x+=d){const b=x%sp.M===0;s+=ln(90,y(x),90+(b?24:13),y(x),b?'d-tick b':'d-tick');if(b)s+=tx(80,y(x)+5,sp.u==='ℓ'?x/1000+' ℓ':x+' mℓ','d-sm2','end')}
+  if(cap)s+=tx(140,316,cap,'d-t');
+  return `<g transform="translate(${dx||0},0)">${s}</g>`}
+const dialSVG=(sp,v)=>sv(260,272,dialG(sp,v),'A weighing scale',300);
+const dials2=(sp,a,b,ca,cb)=>sv(520,304,dialG(sp,a,ca,0)+dialG(sp,b,cb,260),'Two weighing scales',520);
+const beakSVG=(sp,v)=>sv(220,296,beakG(sp,v),'A measuring beaker',240);
+const beaks2=(sp,a,b,ca,cb)=>sv(440,326,beakG(sp,a,ca,0)+beakG(sp,b,cb,220),'Two measuring beakers',440);
+function divStep(sp){const d=dv(sp),g=gu(sp);
+  if(sp.u==='kg'||sp.u==='ℓ')return `From 0 to 1 ${sp.u} there are ${sp.k} small spaces. 1 ${sp.u} = 1000 ${g}, so each space is 1000 ÷ ${sp.k} = ${d} ${g}.`;
+  return `From ${sp.M} to ${2*sp.M} there are ${sp.k} small spaces, so each space is ${sp.M} ÷ ${sp.k} = ${d} ${g}.`}
+function readSteps(sp,v,word){const d=dv(sp),g=gu(sp),base=Math.floor(v/sp.M)*sp.M,j=(v-base)/d;
+  if(!base)return[`The ${word} is ${j} small space${j>1?'s':''} from 0: ${j} × ${d} = ${v} ${g}`];
+  const big=sp.u==='kg'||sp.u==='ℓ';
+  return[`The ${word} is ${j} small space${j>1?'s':''} past ${blab(sp,base)}: ${j} × ${d} = ${j*d} ${g}`,`${big?`${blab(sp,base)} = ${base} ${g}. `:''}${base} + ${j*d} = ${v} ${g}`]}
+const OBJ=['bag of flour','pumpkin','parcel','bag of rice','box of cookies','pineapple','bag of potatoes','cabbage'];
+const OBJKG=['watermelon','bag of rice','durian','box of books','bag of sand','jackfruit'];
+const P3A=[
+ ()=>{const sp=pick(DIAL),v=pv(sp),o=pick(OBJ);
+  return{q:`The scale shows the mass of a ${o}. What is the mass of the ${o}?`,svg:dialSVG(sp,v),ans:v,unit:'g',steps:[divStep(sp),...readSteps(sp,v,'pointer')],vk:'p3_scales:read'}},
+ ()=>{const sp=pick(DIALKG),v=pv(sp),o=pick(OBJKG);
+  return{q:`The scale shows the mass of a ${o}. What is its mass in grams?`,svg:dialSVG(sp,v),ans:v,unit:'g',steps:[divStep(sp),...readSteps(sp,v,'pointer')],vk:'p3_scales:kgg'}},
+ ()=>{const sp=pick(BEAK),v=pv(sp,2*dv(sp));
+  return{q:`How much water is in the beaker? Give your answer in mℓ.`,svg:beakSVG(sp,v),ans:v,unit:'mℓ',steps:[divStep(sp),...readSteps(sp,v,'water level')],vk:'p3_scales:beaker'}},
+ ()=>{const sp=pick(BEAK),v=pv(sp,dv(sp),sp.mx-sp.M),Ts=[];for(let t=Math.ceil(v/sp.M)*sp.M;t<=sp.mx;t+=sp.M)Ts.push(t);const T=pick(Ts),d=dv(sp),big=sp.u==='ℓ';
+  return{q:`How much more water is needed to fill the beaker up to the ${N(blab(sp,T))} mark? Give your answer in mℓ.`,svg:beakSVG(sp,v),ans:T-v,unit:'mℓ',steps:[divStep(sp),`The water level shows ${v} mℓ.`,`${big?`${blab(sp,T)} = ${T} mℓ. `:''}${T} − ${v} = ${T-v} mℓ`],vk:'p3_scales:more'}},
+ ()=>{const sp=pick([...DIAL,...DIALKG.slice(0,3)]),tot=rnd()<.5;let a,b;do{a=pv(sp,dv(sp));b=pv(sp,dv(sp))}while(a===b||Math.abs(a-b)<2*dv(sp)||a+b>10000);
+  const g=gu(sp),hv=a>b?'A':'B',lt=a>b?'B':'A';
+  return{q:tot?`What is the total mass of parcel A and parcel B? Give your answer in grams.`:`How much heavier is parcel ${hv} than parcel ${lt}? Give your answer in grams.`,svg:dials2(sp,a,b,'A','B'),ans:tot?a+b:Math.abs(a-b),unit:'g',
+   steps:[divStep(sp),`A shows ${a} g. B shows ${b} g.`,tot?`${a} + ${b} = ${a+b} g`:`${Math.max(a,b)} − ${Math.min(a,b)} = ${Math.abs(a-b)} g`],vk:'p3_scales:two'}}
+];
+const FR=[['apples','apple'],['oranges','orange'],['mangoes','mango'],['pears','pear'],['tins of soup','tin of soup']];
+const P3H=[
+ ()=>{const f=pick(FR);let sp,n,b,t,m;do{sp=pick([...DIAL.slice(3),...DIALKG]);n=ri(2,5);b=pv(sp,dv(sp),sp.mx/2);t=pv(sp,b+dv(sp));m=(t-b)/n}while(!Number.isInteger(m)||m%5||m<40);
+  return{q:`Scale A shows an empty box. Scale B shows the same box with ${N(n)} identical ${f[0]} in it. What is the mass of 1 ${f[1]}?`,svg:dials2(sp,b,t,'A','B'),ans:m,unit:'g',
+   steps:[divStep(sp),`A: ${b} g. B: ${t} g.`,`${n} ${f[0]}: ${t} − ${b} = ${t-b} g`,`1 ${f[1]}: ${t-b} ÷ ${n} = ${m} g`],vk:'p3_scales:container'}},
+ ()=>{const it=pick([['books','book'],['tins of beans','tin of beans'],['bars of soap','bar of soap'],['packets of nuts','packet of nuts']]);let sp,n,v,p;do{sp=pick([...DIAL,...DIALKG]);n=ri(2,6);v=pv(sp,dv(sp));p=ri(2,9)}while(v%n||p===n||(v/n)%5||p*v/n>10000);
+  const one=v/n;return{q:`The scale shows the mass of ${N(n)} identical ${it[0]}. What is the mass of ${N(p)} such ${it[0]}? Give your answer in grams.`,svg:dialSVG(sp,v),ans:p*one,unit:'g',
+   steps:[divStep(sp),`The scale shows ${v} g.`,`1 ${it[1]}: ${v} ÷ ${n} = ${one} g`,`${p} ${it[0]}: ${p} × ${one} = ${p*one} g`],vk:'p3_scales:scaleup'}},
+ ()=>{let sp,a,b;do{sp=pick(BEAK);a=pv(sp,dv(sp));b=pv(sp,dv(sp))}while(a<=b||(a-b)%2||a-b<2*dv(sp));const h=(a-b)/2;
+  return{q:`Some water is poured from beaker A into beaker B. Then both beakers have the same amount of water. How much water was poured? Give your answer in mℓ.`,svg:beaks2(sp,a,b,'A','B'),ans:h,unit:'mℓ',
+   steps:[divStep(sp),`A has ${a} mℓ. B has ${b} mℓ.`,`Difference: ${a} − ${b} = ${a-b} mℓ`,`Pour half of the difference: ${a-b} ÷ 2 = ${h} mℓ`],vk:'p3_scales:pour'}},
+ ()=>{const nm=pick(NAMES);let sp,v,n,c,T;do{sp=pick(BEAK.filter(s=>s.mx>=1000));v=pv(sp,dv(sp),sp.mx/2);n=ri(2,4);c=pick([50,100,120,150,200,250,300]);const Ts=[];for(let t=sp.M;t<=sp.mx;t+=sp.M)if(t>v+n*c)Ts.push(t);T=Ts.length?pick(Ts):0}while(!T||T-v-n*c<20);
+  return{q:`${nm} pours ${N(n)} cups of water into the beaker. Each cup holds ${N(c+' mℓ')}. How much more water is then needed to reach the ${N(blab(sp,T))} mark? Give your answer in mℓ.`,svg:beakSVG(sp,v),ans:T-v-n*c,unit:'mℓ',
+   steps:[`Each small space is ${dv(sp)} mℓ, so the beaker has ${v} mℓ now.`,`${n} cups: ${n} × ${c} = ${n*c} mℓ. Then: ${v} + ${n*c} = ${v+n*c} mℓ`,`${sp.u==='ℓ'?`${blab(sp,T)} = ${T} mℓ. `:''}${T} − ${v+n*c} = ${T-v-n*c} mℓ`],vk:'p3_scales:fill'}},
+ ()=>{const [X,Y,Ys]=pick([['pineapple','orange','oranges'],['melon','mango','mangoes'],['cabbage','carrot','carrots'],['papaya','lemon','lemons']]),askX=rnd()<.5;let sp,v,dd,o;do{sp=pick(DIAL.slice(3));v=pv(sp,dv(sp));dd=ri(4,40)*10;o=(v-dd)/2}while(!Number.isInteger(o)||o<50||o%5);const p=o+dd;
+  return{q:`The scale shows a ${X} and a ${Y} together. The ${X} is ${N(dd+' g')} heavier than the ${Y}. What is the mass of the ${askX?X:Y}?`,svg:dialSVG(sp,v),ans:askX?p:o,unit:'g',
+   steps:[`Each small space is ${dv(sp)} g, so together they have a mass of ${v} g.`,`Take away the difference: ${v} − ${dd} = ${v-dd} g. This is 2 ${Ys}.`,`${Y}: ${v-dd} ÷ 2 = ${o} g`,...(askX?[`${X}: ${o} + ${dd} = ${p} g`]:[])],vk:'p3_scales:combo'}}
+];
+sk('p3_scales',3,'Measurement','Reading scales',hi=>pick(hi?P3H:P3A)());
+
+/* ---------- P4 Tables ---------- */
+function tblSVG(rows,lab,cw){const H=40;cw=cw||rows[0].map((_,j)=>j?84:120);const W=cw.reduce((a,b)=>a+b,0);let s='',y=1;
+  rows.forEach((r,i)=>{let x=1;r.forEach((c,j)=>{const hd=i===0||j===0;s+=`<rect class="d-e" x="${x}" y="${y}" width="${cw[j]}" height="${H}" style="stroke-width:1.5${hd?';fill:var(--g)':''}"/>`;
+    if(c!=='')s+=`<text class="${c==='?'?'d-t':'d-sm2'}" x="${rr(x+cw[j]/2)}" y="${y+(c==='?'?27:26)}" text-anchor="middle"${hd?' style="font-weight:700"':''}>${c}</text>`;x+=cw[j]});y+=H});
+  return sv(W+2,y+1,s,lab,W+2)}
+const DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],D3=d=>d.slice(0,3);
+const m$=c=>'$'+(c/100).toFixed(2);
+const ITEMS=[['pencil','pencils',4,9],['eraser','erasers',5,12],['ruler','rulers',6,15],['notebook','notebooks',15,45],['file','files',20,55],['marker','markers',10,25],['glue stick','glue sticks',8,20],['highlighter','highlighters',10,22]];
+const priceList=k=>{const it=shuffle(ITEMS).slice(0,k),pr=[];it.forEach(x=>{let p;do{p=ri(x[2],x[3])*10+pick([0,5])}while(pr.includes(p));pr.push(p)});return{it,pr}};
+const P4A=[
+ ()=>{const v=DAYS.slice(0,5).map(()=>ri(12,65));let a,b;do{a=ri(0,4);b=ri(0,4)}while(v[a]<=v[b]);
+  return{q:`The table shows the number of books read by a class in one week. How many more books were read on ${DAYS[a]} than on ${DAYS[b]}?`,svg:tblSVG([['Day',...DAYS.slice(0,5).map(D3)],['Books',...v.map(String)]],'Table of books read'),ans:v[a]-v[b],unit:'books',
+   steps:[`${DAYS[a]}: ${v[a]} books. ${DAYS[b]}: ${v[b]} books.`,`${v[a]} − ${v[b]} = ${v[a]-v[b]} books`],vk:'p4_table:more'}},
+ ()=>{let v;do{v=DAYS.map(()=>ri(95,420))}while(v.filter(x=>x===Math.max(...v)).length>1||v.filter(x=>x===Math.min(...v)).length>1);const hi_=Math.max(...v),lo=Math.min(...v),ih=v.indexOf(hi_),il=v.indexOf(lo);
+  return{q:`The table shows the number of cups of juice a stall sold. How many more cups were sold on the day with the most cups than on the day with the fewest cups?`,svg:tblSVG([['Day',...DAYS.map(D3)],['Cups',...v.map(String)]],'Table of cups sold',[100,73,73,73,73,73,73]),ans:hi_-lo,unit:'cups',
+   steps:[`Most: ${DAYS[ih]}, ${hi_} cups.`,`Fewest: ${DAYS[il]}, ${lo} cups.`,`${hi_} − ${lo} = ${hi_-lo} cups`],vk:'p4_table:range'}},
+ ()=>{const {it,pr}=priceList(5),nm=pick(NAMES),[i,j]=shuffle([0,1,2,3,4]).slice(0,2),a=ri(2,4),b=ri(1,3),t=a*pr[i]+b*pr[j];
+  return{q:`The table shows a price list. ${nm} buys ${N(a)} ${it[i][1]} and ${N(b)} ${b>1?it[j][1]:it[j][0]}. How much does ${nm} pay?`,svg:tblSVG([['Item','Price'],...it.map((x,k)=>[x[0][0].toUpperCase()+x[0].slice(1),m$(pr[k])])],'Price list',[170,110]),ans:t/100,pre:'$',
+   steps:[`${a} ${it[i][1]}: ${a} × ${m$(pr[i])} = ${m$(a*pr[i])}`,`${b} ${b>1?it[j][1]:it[j][0]}: ${b>1?`${b} × ${m$(pr[j])} = `:''}${m$(b*pr[j])}`,`${m$(a*pr[i])} + ${m$(b*pr[j])} = ${m$(t)}`],vk:'p4_table:price'}},
+ ()=>{const cl=['4A','4B','4C','4D'],v=cl.map(()=>ri(105,480)),T=v.reduce((x,y)=>x+y,0),m=ri(0,3),others=v.filter((_,k)=>k!==m),so=others.reduce((x,y)=>x+y,0);
+  return{q:`The table shows the number of cans four classes collected for recycling. One number is missing. How many cans did class ${cl[m]} collect?`,svg:tblSVG([['Class',...cl,'Total'],['Cans',...v.map((x,k)=>k===m?'?':String(x)),String(T)]],'Table of cans collected'),ans:v[m],unit:'cans',
+   steps:[`The other classes: ${others.join(' + ')} = ${so}`,`${cl[m]}: ${T} − ${so} = ${v[m]} cans`],vk:'p4_table:missing'}},
+ ()=>{const A=['Swimming','Football','Art','Music'],b=A.map(()=>ri(12,58)),g=A.map(()=>ri(12,58)),k=ri(0,3),mode=rnd()<.5&&b[k]!==g[k];
+  const svg=tblSVG([['',...A],['Boys',...b.map(String)],['Girls',...g.map(String)]],'Table of activities',[100,110,110,110,110]);
+  if(!mode)return{q:`The table shows the activity each pupil in a school chose. How many pupils chose ${A[k]} altogether?`,svg,ans:b[k]+g[k],unit:'pupils',steps:[`${A[k]}: ${b[k]} boys and ${g[k]} girls.`,`${b[k]} + ${g[k]} = ${b[k]+g[k]} pupils`],vk:'p4_table:twoway'};
+  const [x,y]=b[k]>g[k]?['boys','girls']:['girls','boys'];
+  return{q:`The table shows the activity each pupil in a school chose. How many more ${x} than ${y} chose ${A[k]}?`,svg,ans:Math.abs(b[k]-g[k]),unit:x,steps:[`${A[k]}: ${b[k]} boys and ${g[k]} girls.`,`${Math.max(b[k],g[k])} − ${Math.min(b[k],g[k])} = ${Math.abs(b[k]-g[k])} ${x}`],vk:'p4_table:twoway'}}
+];
+const P4H=[
+ ()=>{const A=['Swimming','Football','Art'];let b,g;do{b=A.map(()=>ri(15,70));g=A.map(()=>ri(15,70))}while(b[2]===g[2]||[b[0],b[1],b[0]+b[1]+b[2]].includes(g[2]));const B=b[0]+b[1]+b[2],AT=b[2]+g[2];
+  return{q:`The table shows the activity each pupil chose. Some numbers are missing. How many girls chose Art?`,svg:tblSVG([['',...A,'Total'],['Boys',String(b[0]),String(b[1]),'',String(B)],['Girls',String(g[0]),String(g[1]),'?',''],['Total','','',String(AT),'']],'Table with missing numbers',[100,110,110,110,110]),ans:g[2],unit:'girls',
+   steps:[`Boys who chose Art: ${B} − ${b[0]} − ${b[1]} = ${b[2]}`,`Girls who chose Art: ${AT} − ${b[2]} = ${g[2]}`],vk:'p4_table:twowaymiss'}},
+ ()=>{const nm=pick(NAMES),pp=pick([90,110,120,135,150]),np=pick([200,250,320,380]),ms=pick([130,140,160,180,190]),mp=2*ms-pick([20,30,40,50,60]),qp=ri(5,11),qm=ri(3,7);
+  const payP=qp-Math.floor(qp/4),cP=payP*pp,cM=Math.floor(qm/2)*mp+(qm%2)*ms,t=cP+cM;
+  return{q:`The table shows the prices at a shop. ${nm} wants ${N(qp)} pens and ${N(qm)} markers. What is the least amount ${nm} has to pay?`,svg:tblSVG([['Item','Price','Offer'],['Pen',m$(pp),'Buy 3, get 1 free'],['Notebook',m$(np),'–'],['Marker',m$(ms),`2 for ${m$(mp)}`]],'Price list with offers',[130,100,210]),ans:t/100,pre:'$',
+   steps:[`Pens: for every 4 pens, pay for 3. For ${qp} pens, pay for ${payP}: ${payP} × ${m$(pp)} = ${m$(cP)}`,`Markers: ${Math.floor(qm/2)} pair${qm>3?'s':''} × ${m$(mp)}${qm%2?` + 1 × ${m$(ms)}`:''} = ${m$(cM)}`,`${m$(cP)} + ${m$(cM)} = ${m$(t)}`],vk:'p4_table:offer'}},
+ ()=>{const ST=['Park','School','Market','Library'],gap=[ri(8,15),ri(9,16),ri(10,18)],first=ri(78,96)*5,ev=pick([15,20,25,30]);const tm=[0,1,2].map(k=>{let t=first+k*ev;return ST.map((_,s)=>{const x=t;if(s<3)t+=gap[s];return x})});
+  const fmt=x=>`${Math.floor(x/60)}:${String(x%60).padStart(2,'0')}`,nm=pick(NAMES),bk=ri(1,2),from=ri(0,1),to=ri(from+2,3),arr=tm[bk][from]-ri(2,ev-2),w=tm[bk][from]-arr,r=tm[bk][to]-tm[bk][from];
+  return{q:`The table shows a bus timetable. All times are in the morning. ${nm} reaches the ${ST[from]} stop at ${N(fmt(arr))} and takes the next bus. How many minutes after reaching the ${ST[from]} stop does ${nm} reach the ${ST[to]}?`,
+   svg:tblSVG([['Bus stop','Bus 1','Bus 2','Bus 3'],...ST.map((s,k)=>[s,...tm.map(b=>fmt(b[k]))])],'Bus timetable',[130,100,100,100]),ans:w+r,unit:'min',
+   steps:[`The next bus at ${ST[from]} after ${fmt(arr)} is Bus ${bk+1} at ${fmt(tm[bk][from])}.`,`Wait: ${fmt(arr)} to ${fmt(tm[bk][from])} = ${w} min`,`Ride: ${fmt(tm[bk][from])} to ${fmt(tm[bk][to])} = ${r} min`,`${w} + ${r} = ${w+r} min`],vk:'p4_table:timetable'}},
+ ()=>{const [n1,n2]=twoNames();let n3;do{n3=pick(NAMES)}while(n3===n1||n3===n2);const MO=['Jan','Feb','Mar'];let a,b,c,k;do{a=MO.map(()=>ri(6,25));b=MO.map(()=>ri(6,25));c=MO.map(()=>ri(6,25));k=a.reduce((x,y)=>x+y)-b.reduce((x,y)=>x+y)}while(k<3);
+  const sb=b.reduce((x,y)=>x+y),sa=sb+k;
+  return{q:`The table shows the number of books three pupils read. ${n1} read ${N(k)} more books than ${n2} altogether. How many books did ${n1} read in March?`,svg:tblSVG([['Name',...MO],[n1,String(a[0]),String(a[1]),'?'],[n2,...b.map(String)],[n3,...c.map(String)]],'Table of books read',[120,90,90,90]),ans:a[2],unit:'books',
+   steps:[`${n2} altogether: ${b.join(' + ')} = ${sb}`,`${n1} altogether: ${sb} + ${k} = ${sa}`,`${n1} in March: ${sa} − ${a[0]} − ${a[1]} = ${a[2]} books`],vk:'p4_table:combine'}},
+ ()=>{let L,it,pr,i,j,q,B,left,n;do{({it,pr}=priceList(4));[i,j]=shuffle([0,1,2,3]).slice(0,2);q=ri(2,4);B=pick([10,15,20]);left=B*100-q*pr[i];n=Math.floor(left/pr[j])}while(left<=0||n<2||n>12||left%pr[j]===0);
+  const nm=pick(NAMES);
+  return{q:`${nm} has ${N('$'+B)}. ${nm} buys ${N(q)} ${it[i][1]} from the price list. With the money left, what is the greatest number of ${it[j][1]} ${nm} can buy?`,svg:tblSVG([['Item','Price'],...it.map((x,k)=>[x[0][0].toUpperCase()+x[0].slice(1),m$(pr[k])])],'Price list',[170,110]),ans:n,unit:it[j][1],
+   steps:[`${q} ${it[i][1]}: ${q} × ${m$(pr[i])} = ${m$(q*pr[i])}`,`Money left: $${B}.00 − ${m$(q*pr[i])} = ${m$(left)}`,`${n} ${it[j][1]} cost ${n} × ${m$(pr[j])} = ${m$(n*pr[j])}. One more would cost ${m$((n+1)*pr[j])}, which is too much.`,`So ${n} ${it[j][1]}.`],vk:'p4_table:budget'}}
+];
+sk('p4_table',4,'Data','Tables',hi=>pick(hi?P4H:P4A)());
+})();
+
+/* ===== Q2: new topics p5_fdiv, p6_ratio + deeper p3_lines, p4_sym ===== */
+(()=>{
+const _P=h=>String(h).replace(/<svg[\s\S]*?<\/svg>/g,'').replace(/<[^>]+>/g,' ');
+const _nums=t=>(_P(t).replace(/(\d),(\d{3})/g,'$1$2').match(/\d+(\.\d+)?/g)||[]).map(Number);
+const tidy=Q=>{Q.steps=Q.steps.map(t=>t.replace(/= 1 units? = ([^,]+), so 1 unit = \1/,'= 1 unit = $1'));return Q};
+const G=f=>()=>{for(let i=0;i<4000;i++){const Q=f();if(!Q)continue;if(_nums(Q.q).some(x=>Math.abs(x-Q.ans)<1e-9))continue;return tidy(Q)}throw new Error('Q2: no valid question')};
+const G0=f=>()=>{for(let i=0;i<4000;i++){const Q=f();if(Q)return Q}throw new Error('Q2: no valid question')};
+const GIRLS=['Mei','Siti','Lin','Amy','Nurul','Hana','Aisyah','Priya','Chloe','Zara'],BOYS=['Ali','Raju','Ben','Kai','Wei','Dev','Jun','Ravi','Farhan','Arjun'];
+const person=()=>rnd()<.5?[pick(GIRLS),'she','her']:[pick(BOYS),'he','his'];
+const cap=s=>s[0].toUpperCase()+s.slice(1);
+const two=()=>{const a=pick(NAMES);let b;do{b=pick(NAMES)}while(b===a);return[a,b]};
+const three=()=>shuffle(NAMES).slice(0,3);
+const FQ=(n,d)=>({type:'frac',simp:true,ansText:fs(n,d),ans:n/d});
+const show=(n,d)=>{const s=fs(n,d);return n>d&&n%d?`${s} = ${mixed(n,d)}`:s};
+const rt=(a,b)=>N(a+' : '+b);
+const eqR=(a,b,A,B)=>a===A&&b===B?`${a} : ${b}`:`${a} : ${b} = ${A} : ${B}`;
+const pos=(x,y)=>`row ${y+1}, column ${x+1}`;
+
+/* ================= P5: Fractions and division ================= */
+// tail of a division a ÷ b: shows the fraction, simplest form and mixed number
+const divTail=(a,b,u)=>{const g=gcd(a,b);return g>1?[`${a} ÷ ${b} = ${a}/${b}`,`Simplest form: ${show(a,b)}${u||''}`]:[`${a} ÷ ${b} = ${show(a,b)}${u||''}`]};
+const FDIV_A=[
+ // sharing things equally
+ G(()=>{const a=ri(1,15),b=ri(2,12);if(a%b===0||a===1&&b<3)return null;const [who,he]=person(),ctx=ri(0,3);
+  const C=[
+   [`${N(a)} pizza${a>1?'s are':' is'} shared equally among ${N(b)} children. How much pizza does each child get?`,'',`Cut each pizza into ${b} equal slices. Each child gets 1 slice of every pizza: ${a} slice${a>1?'s':''} of 1/${b}.`],
+   [`${who} cuts a ribbon ${N(a+' m')} long into ${N(b)} equal pieces. How long is each piece?`,'m',`Cutting into equal pieces means dividing: ${a} m ÷ ${b}.`],
+   [`${N(a+' kg')} of rice is packed equally into ${N(b)} bags. How much rice is in each bag?`,'kg',`Packing equally means dividing: ${a} kg ÷ ${b}.`],
+   [`${N(a+' ℓ')} of juice is poured equally into ${N(b)} jugs. How much juice is in each jug?`,'ℓ',`Pouring equally means dividing: ${a} ℓ ÷ ${b}.`]][ctx];
+  return{q:C[0]+(ctx===0?' Give your answer as a fraction.':''),...FQ(a,b),unit:C[1],steps:[C[2],...divTail(a,b,C[1]?' '+C[1]:'')],vk:'p5_fdiv:share'}}),
+ // write a division as a fraction
+ G(()=>{const b=ri(2,12),a=rnd()<.7?ri(b+1,5*b):ri(2,b-1);if(a%b===0||a<2)return null;const g=gcd(a,b);if(g===1&&rnd()<.4)return null;
+  return{q:`Write the answer as a fraction in simplest form.`+EQ(`${a} ÷ ${b} = ☐`),...FQ(a,b),steps:[`The number being divided (${a}) goes on top. The number we divide by (${b}) goes at the bottom.`,...divTail(a,b)],vk:'p5_fdiv:asfrac'}}),
+ // missing dividend or divisor
+ G(()=>{const t=ri(0,2);
+  if(t===0){const d=ri(2,6),n=ri(1,d-1),g=ri(2,5);if(gcd(n,d)!==1)return null;const a=n*g,b=d*g;
+   return{q:`Find the missing number.`+EQ(`☐ ÷ ${b} = ${n}/${d}`),ans:a,steps:[`☐ ÷ ${b} is the fraction ☐/${b}.`,`Change ${n}/${d} to ${b}ths: ${d} × ${g} = ${b}, so multiply the top by ${g} too.`,`☐ = ${n} × ${g} = ${a}`],vk:'p5_fdiv:missing'}}
+  if(t===1){const d=ri(2,6),n=ri(1,d-1),g=ri(2,5);if(gcd(n,d)!==1)return null;const a=n*g,b=d*g;
+   return{q:`Find the missing number.`+EQ(`${a} ÷ ☐ = ${n}/${d}`),ans:b,steps:[`${a} ÷ ☐ is the fraction ${a}/☐.`,`In ${n}/${d}, the top ${n} became ${a}: it was multiplied by ${g}.`,`Multiply the bottom by ${g} too: ☐ = ${d} × ${g} = ${b}`],vk:'p5_fdiv:missing'}}
+  const b=ri(3,9),w=ri(1,6),r=ri(1,b-1);if(gcd(r,b)!==1)return null;const a=w*b+r;
+  return{q:`Find the missing number.`+EQ(`☐ ÷ ${b} = ${w} ${r}/${b}`),ans:a,steps:[`☐ ÷ ${b} is the fraction ☐/${b}.`,`Change ${w} ${r}/${b} to an improper fraction: ${w} wholes = ${w} × ${b} = ${w*b} parts of 1/${b}, plus ${r} more.`,`☐ = ${w*b} + ${r} = ${a}`],vk:'p5_fdiv:missing'}}),
+ // fraction / mixed number / division → decimal
+ G(()=>{const b=pick([2,4,5,20,25,50]),a=ri(1,b-1);if(gcd(a,b)!==1)return null;const P=b<=10&&10%b===0?10:b<=100&&100%b===0?100:1000,m=P/b,w=rnd()<.4?ri(1,9):0,t=ri(0,2);
+  const shown=t===2&&!w?`${a} ÷ ${b}`:w?`${w} ${a}/${b}`:`${a}/${b}`,v=w+a/b;
+  return{q:t===2&&!w?`Write the answer as a decimal.`+EQ(`${a} ÷ ${b} = ☐`):`Write ${N(shown)} as a decimal.`,ans:v,steps:[...(t===2&&!w?[`${a} ÷ ${b} = ${a}/${b}`]:[]),`Make the denominator 10, 100 or 1000: ${b} × ${m} = ${P}`,`${a}/${b} = ${a*m}/${P} = ${nf(a/b)}`,...(w?[`${w} + ${nf(a/b)} = ${nf(v)}`]:[])],vk:'p5_fdiv:todec'}}),
+ // decimal → fraction (the answer is the same value as the decimal, so no answer-in-question check)
+ G0(()=>{const P=pick([10,100,100]),w=rnd()<.5?ri(1,5):0,n0=ri(1,P-1);if(n0%10===0&&P===100)return null;const g=gcd(n0,P);if(g===1)return null;const d=P/g,n=n0/g,tot=w*d+n,ds=nf(w+n0/P);
+  return{q:`Write ${N(ds)} as a fraction in simplest form.`,...FQ(tot,d),steps:[`${P===10?'1 decimal place: tenths':'2 decimal places: hundredths'}. ${ds} = ${w?w+' and ':''}${n0}/${P}`,`Divide the top and bottom by ${g}: ${n0}/${P} = ${n}/${d}`,w?`${w} ${n}/${d} = ${tot}/${d}`:`So ${ds} = ${n}/${d}`],vk:'p5_fdiv:fromdec'}}),
+ // which is greater
+ G(()=>{const b=ri(2,9),d=ri(2,9),a=ri(1,2*b),c=ri(1,2*d);if(b===d||a%b===0||c%d===0||a*d===b*c||gcd(a,b)!==1||gcd(c,d)!==1)return null;const L=lcm(b,d),big=a*d>c*b?[a,b]:[c,d];
+  return{q:`Which is greater: ${N(a+' ÷ '+b)} or ${N(c+' ÷ '+d)}? Write the greater value as a fraction in simplest form.`,...FQ(big[0],big[1]),steps:[`As fractions: ${a}/${b} and ${c}/${d}`,`Same denominator ${L}: ${a}/${b} = ${a*L/b}/${L} and ${c}/${d} = ${c*L/d}/${L}`,`${Math.max(a*L/b,c*L/d)}/${L} is greater, so the answer is ${show(big[0],big[1])}`],vk:'p5_fdiv:compare'}}),
+];
+const FDIV_H=[
+ // leftover after full pieces is shared again
+ G(()=>{const c=ri(2,6),n=ri(3,8),r=ri(1,c-1),k=ri(2,9),L=n*c+r;if(r%k===0)return null;const [who,he]=person(),juice=rnd()<.5,u=juice?'ℓ':'m';
+  const q=juice?`${who} has ${N(L+' ℓ')} of juice. Each jug holds ${N(c+' ℓ')}. ${cap(he)} fills as many jugs as possible, then pours the juice left over equally into ${N(k)} cups. How much juice is in each cup?`
+   :`${who} has ${N(L+' m')} of cloth. Each curtain needs ${N(c+' m')}. ${cap(he)} makes as many curtains as possible, then cuts the cloth left over into ${N(k)} equal pieces. How long is each piece?`;
+  return{q,...FQ(r,k),unit:u,steps:[`${L} ÷ ${c} = ${n} remainder ${r}: ${n} ${juice?'jugs':'curtains'} use ${n*c} ${u}.`,`Left over: ${L} − ${n*c} = ${r} ${u}`,...divTail(r,k,' '+u)],vk:'p5_fdiv:leftover'}}),
+ // compare two sharings
+ G(()=>{const b=ri(2,9),d=ri(2,9),a=ri(1,b-1),c=ri(1,d-1);if(b===d||a*d===b*c||a%b===0||c%d===0||gcd(a,b)!==1||gcd(c,d)!==1)return null;const L=lcm(b,d),x=a*L/b,y=c*L/d,df=Math.abs(x-y);if(L>40)return null;
+  return{q:`At Table A, ${N(a)} pizzas are shared equally among ${N(b)} children. At Table B, ${N(c)} pizzas are shared equally among ${N(d)} children. Each child at one table gets more pizza. How much more?`,...FQ(df,L),steps:[`Table A: ${a} ÷ ${b} = ${a}/${b}. Table B: ${c} ÷ ${d} = ${c}/${d}`,`Same denominator: ${a}/${b} = ${x}/${L} and ${c}/${d} = ${y}/${L}`,`Table ${x>y?'A':'B'} gets more: ${Math.max(x,y)}/${L} − ${Math.min(x,y)}/${L} = ${show(df,L)}`],vk:'p5_fdiv:cmpshare'}}),
+ // each gets a/b — how many people / packets (parts, no ÷ by a fraction)
+ G(()=>{const b=pick([3,4,5,6,8]),a=ri(2,b-1);if(gcd(a,b)!==1)return null;
+  if(rnd()<.5){const n=ri(3,15),W=n*a/b;if(!Number.isInteger(W)||n<4)return null;
+   return{q:`Some pies were shared equally among some children. Each child got ${N(a+'/'+b)} of a pie. ${N(W)} pies were used up with nothing left over. How many children were there?`,ans:n,unit:'children',steps:[`Cut every pie into ${b} equal parts (1/${b} each): ${W} × ${b} = ${W*b} parts`,`Each child gets ${a} parts.`,`${W*b} ÷ ${a} = ${n} children`],vk:'p5_fdiv:howmany'}}
+  const W=ri(3,12),T=W*b;if(T%a===0)return null;const n=Math.floor(T/a),[who,he]=person();
+  return{q:`${who} has ${N(W+' kg')} of sugar. ${cap(he)} packs it into packets of ${N(a+'/'+b+' kg')} each. How many packets can ${he} fill completely?`,ans:n,unit:'packets',steps:[`Cut every kg into ${b} equal parts (1/${b} kg each): ${W} × ${b} = ${T} parts`,`Each packet needs ${a} parts.`,`${T} ÷ ${a} = ${n} remainder ${T%a}, so ${n} full packets`],vk:'p5_fdiv:howmany'}}),
+ // fraction of a quantity, then the rest shared equally
+ G(()=>{const b=ri(3,8),a=ri(1,b-1),W=ri(2,9),k=ri(2,8);if(gcd(a,b)!==1||(W*a)%b===0)return null;const lt=W*(b-a),D=b*k;if(lt%D===0)return null;const [who,he]=person();
+  return{q:`${who} had ${N(W+' kg')} of flour. ${cap(he)} used ${N(a+'/'+b)} of it to bake bread. ${cap(he)} packed the rest equally into ${N(k)} bags. How much flour was in each bag?`,...FQ(lt,D),unit:'kg',steps:[`Fraction left: 1 − ${a}/${b} = ${b-a}/${b}`,`Flour left: ${b-a}/${b} × ${W} = ${lt}/${b} kg`,`Each bag: ${lt}/${b} ÷ ${k} = ${lt}/${D}${gcd(lt,D)>1?` = ${show(lt,D)}`:''} kg`],vk:'p5_fdiv:chain'}}),
+ // from one division to another
+ G(()=>{const d1=ri(3,9),w=ri(1,6),r=ri(1,d1-1),d2=ri(2,9);if(gcd(r,d1)!==1||d2===d1)return null;const n=w*d1+r;if(n%d2===0)return null;
+  return{q:`When a number is divided by ${N(d1)}, the answer is ${N(w+' '+r+'/'+d1)}. What is the answer when the same number is divided by ${N(d2)}? Give it as a fraction in simplest form.`,...FQ(n,d2),steps:[`${w} ${r}/${d1} = ${n}/${d1}`,`So the number ÷ ${d1} = ${n}/${d1}: the number is ${n}.`,`${n} ÷ ${d2} = ${show(n,d2)}`],vk:'p5_fdiv:twodiv'}}),
+];
+sk('p5_fdiv',5,'Fractions','Fractions and division',hi=>pick(hi?FDIV_H:FDIV_A)());
+
+/* ================= P6: Ratio problems ================= */
+const RAT_A=[
+ // one quantity changes, the other stays
+ G(()=>{const p=ri(1,6),q=ri(2,7),r=ri(1,6),s=ri(2,7);if(gcd(p,q)!==1||gcd(r,s)!==1||p*s===q*r||p>2*q||r>2*s)return null;const L=lcm(q,s),b0=p*L/q,b1=r*L/s,join=b1>b0,d=Math.abs(b1-b0),k=ri(2,12),X=d*k;if(L*k>80||(b0+L)*k>150||Math.max(b0,b1)*k>80||X<4||X>40)return null;
+  const askG=rnd()<.5;
+  return{q:`The ratio of boys to girls in a choir was ${rt(p,q)}. After ${N(X)} boys ${join?'joined':'left'} the choir, the ratio became ${rt(r,s)}. How many ${askG?'girls are there':'boys were there at first'}?`,ans:askG?L*k:b0*k,unit:askG?'girls':'boys',
+   steps:[`The number of girls did not change. Make the girls' units the same: ${eqR(p,q,b0,L)} and ${eqR(r,s,b1,L)}`,`Boys ${join?'went up':'went down'} by ${Math.max(b0,b1)} − ${Math.min(b0,b1)} = ${d} units = ${X}, so 1 unit = ${k}`,askG?`Girls: ${L} × ${k} = ${L*k}`:`Boys at first: ${b0} × ${k} = ${b0*k}`],vk:'p6_ratio:oneside'}}),
+ // three quantities linked through the middle one
+ G(()=>{const p=ri(1,6),q=ri(2,7),r=ri(2,7),s=ri(1,7);if(gcd(p,q)!==1||gcd(r,s)!==1||q===r)return null;const L=lcm(q,r);let A=p*L/q,B=L,C=s*L/r;const g=gcd(gcd(A,B),C);A/=g;B/=g;C/=g;const u=ri(2,9),tot=(A+B+C)*u;if(tot>400||A===C)return null;
+  const [a,b,c]=three(),byT=rnd()<.5,ask=ri(0,2),V=[A,B,C],nm=[a,b,c];
+  const given=byT?`They have ${N(tot)} stamps altogether.`:`${A>C?a:c} has ${N(Math.abs(A-C)*u)} more stamps than ${A>C?c:a}.`;
+  return{q:`The ratio of ${a}’s stamps to ${b}’s stamps is ${rt(p,q)}. The ratio of ${b}’s stamps to ${c}’s stamps is ${rt(r,s)}. ${given} How many stamps does ${nm[ask]} have?`,ans:V[ask]*u,unit:'stamps',
+   steps:[`Make ${b}’s units the same: ${eqR(p,q,p*L/q,L)} and ${eqR(r,s,L,s*L/r)}`,`${a} : ${b} : ${c} = ${A} : ${B} : ${C}`,byT?`${A} + ${B} + ${C} = ${A+B+C} units = ${tot}, so 1 unit = ${u}`:`${Math.max(A,C)} − ${Math.min(A,C)} = ${Math.abs(A-C)} units = ${Math.abs(A-C)*u}, so 1 unit = ${u}`,`${nm[ask]}: ${V[ask]} × ${u} = ${V[ask]*u}`],vk:'p6_ratio:three'}}),
+ // "a/b as many as" → ratio
+ G(()=>{const n=ri(3,9),m=ri(1,n-1);if(gcd(m,n)!==1)return null;const u=ri(3,15),[a,b]=two(),byT=rnd()<.5;
+  return{q:`${a} has ${N(m+'/'+n)} as many beads as ${b}. ${byT?`Together they have ${N((m+n)*u)} beads. How many more beads does ${b} have than ${a}?`:`${b} has ${N((n-m)*u)} more beads than ${a}. How many beads do they have altogether?`}`,ans:byT?(n-m)*u:(m+n)*u,unit:'beads',
+   steps:[`${a} : ${b} = ${m} : ${n}`,byT?`${m} + ${n} = ${m+n} units = ${(m+n)*u}, so 1 unit = ${u}`:`${n} − ${m} = ${n-m} units = ${(n-m)*u}, so 1 unit = ${u}`,byT?`${b} has ${n-m} more units: ${n-m} × ${u} = ${(n-m)*u}`:`Altogether: ${m+n} × ${u} = ${(m+n)*u}`],vk:'p6_ratio:fracratio'}}),
+ // ages: difference stays the same
+ G(()=>{const [who,he,his]=person(),par=pick(['mother','father']),c=ri(5,14),D=ri(24,38),f=c+D,p=ri(1,5),q=ri(p+1,9);if(gcd(p,q)!==1||q-p<2||D%(q-p))return null;const u=D/(q-p),then=p*u,fut=then>c,y=Math.abs(then-c);if(y<2||y>30||then<2||(fut&&q*u>75))return null;
+  return{q:`${who} is ${N(c)} years old and ${his} ${par} is ${N(f)} years old. ${fut?'In how many years’ time':'How many years ago'} ${fut?'will':'was'} the ratio of ${who}’s age to ${his} ${par}’s age ${fut?'be ':''}${rt(p,q)}?`,ans:y,unit:'years',
+   steps:[`The age difference never changes: ${f} − ${c} = ${D} years`,`${q} − ${p} = ${q-p} units = ${D}, so 1 unit = ${u}`,`Then ${who} is ${p} × ${u} = ${then} years old.`,fut?`${then} − ${c} = ${y} years from now`:`${c} − ${then} = ${y} years ago`],vk:'p6_ratio:ages'}}),
+ // transfer with the total given
+ G(()=>{const p=ri(2,6),q=ri(1,6),r=ri(1,6),s=ri(1,6);if(gcd(p,q)!==1||gcd(r,s)!==1||p*s<=q*r)return null;const L=lcm(p+q,r+s),a0=p*L/(p+q),a1=r*L/(r+s),d=a0-a1,k=ri(1,6),T=L*k;if(T<40||T>300)return null;const [a,b]=two();
+  return{q:`${a} and ${b} had ${N(T)} marbles altogether in the ratio ${rt(p,q)}. After ${a} gave some marbles to ${b}, the ratio became ${rt(r,s)}. How many marbles did ${a} give to ${b}?`,ans:d*k,unit:'marbles',
+   steps:[`The total stays the same. Make the total units the same: ${p} + ${q} = ${p+q} and ${r} + ${s} = ${r+s} → both ${L} units`,`${a}: ${a0} units before, ${a1} units after. ${a} gave ${a0} − ${a1} = ${d} units.`,`${L} units = ${T}, so 1 unit = ${k}`,`${d} × ${k} = ${d*k}`],vk:'p6_ratio:total'}}),
+];
+const RAT_H=[
+ // both spend (or receive) the same amount: difference unchanged
+ G(()=>{const p=ri(2,7),q=ri(1,6),r=ri(2,7),s=ri(1,6);if(gcd(p,q)!==1||gcd(r,s)!==1||p<=q||r<=s||p*s===q*r||r>4*s||p>4*q)return null;const spend=r*q>p*s;const L=lcm(p-q,r-s),A0=p*L/(p-q),B0=q*L/(p-q),A1=r*L/(r-s),d=Math.abs(A0-A1),u=ri(2,20),X=d*u;if(B0*u<X+5&&spend)return null;if(A0*u>500||A1*u>500||X%5||X>120)return null;
+  const [a,b]=two(),askA=rnd()<.5;
+  return{q:`${a} and ${b} had money in the ratio ${rt(p,q)}. Each of them ${spend?'spent':'was given'} ${N('$'+X)}. The ratio of ${a}’s money to ${b}’s money became ${rt(r,s)}. How much money did ${askA?a:b} have at first?`,ans:(askA?A0:B0)*u,pre:'$',
+   steps:[`Both ${spend?'spent':'got'} the same amount, so the difference between them stays the same.`,`Make the difference the same (${L} unit${L>1?'s':''}): ${eqR(p,q,A0,B0)} and ${eqR(r,s,A1,s*L/(r-s))}`,`Each ${spend?'spent':'got'} ${Math.max(A0,A1)} − ${Math.min(A0,A1)} = ${d} units = $${X}, so 1 unit = $${u}`,`${askA?a:b} at first: ${askA?A0:B0} × $${u} = $${(askA?A0:B0)*u}`],vk:'p6_ratio:samechange'}}),
+ // both quantities change by different amounts: units and parts
+ G(()=>{const p=ri(2,7),q=ri(1,7),r=ri(1,6),s=ri(1,7);if(gcd(p,q)!==1||gcd(r,s)!==1||s*p<=r*q)return null;const u=ri(3,20),x=ri(2,40),k=s*p-r*q,num=k*u-s*x;if(num<=0||num%r)return null;const y=num/r;if(y<4||y>40||x<4||x>40||p*u-x<=0||p*u>150||q*u>150)return null;
+  const [who,he]=person(),askT=rnd()<.5;
+  return{q:`A box had red and blue beads in the ratio ${rt(p,q)}. ${who} took out ${N(x)} red beads and put in ${N(y)} blue beads. The ratio of red to blue beads became ${rt(r,s)}. How many ${askT?'beads were in the box':'red beads were there'} at first?`,ans:askT?(p+q)*u:p*u,unit:'beads',
+   steps:[`At first: red ${p} units, blue ${q} units. After: red ${r} parts, blue ${s} parts.`,`Red: ${p} units − ${x} = ${r} parts. Blue: ${q} units + ${y} = ${s} parts.`,`Make the parts the same (${r*s} parts): ${s*p} units − ${s*x} = ${r*s} parts = ${r*q} units + ${r*y}`,`${s*p} − ${r*q} = ${k} units = ${s*x} + ${r*y} = ${s*x+r*y}, so 1 unit = ${u}`,askT?`At first: (${p} + ${q}) × ${u} = ${(p+q)*u} beads`:`Red at first: ${p} × ${u} = ${p*u}`],vk:'p6_ratio:parts'}}),
+ // ratio then a fraction of each is used
+ G(()=>{const p=ri(1,6),q=ri(1,6),b=ri(2,6),a=ri(1,b-1),d=ri(2,6),c=ri(1,d-1);if(p===q||gcd(p,q)!==1||gcd(a,b)!==1||gcd(c,d)!==1)return null;const K=lcm(b/gcd(p,b),d/gcd(q,d)),M=p*K,S=q*K,lm=M-M*a/b,ls=S-S*c/d,U=lm+ls,u=ri(2,12),[m1,,h1]=person();let m2,h2;do{[m2,,h2]=person()}while(m2===m1);const askM=rnd()<.5;if(M>40||S>40||U*u>400)return null;
+  return{q:`${m1} and ${m2} had stickers in the ratio ${rt(p,q)}. ${m1} used ${N(a+'/'+b)} of ${h1} stickers and ${m2} used ${N(c+'/'+d)} of ${h2==='his'?'his':'hers'}. They have ${N(U*u)} stickers left altogether. How many stickers did ${askM?m1:m2} have at first?`,ans:(askM?M:S)*u,unit:'stickers',
+   steps:[`Pick units that both fractions can use: ${m1} ${M} units, ${m2} ${S} units (still ${p} : ${q})`,`${m1} has ${M} − ${M*a/b} = ${lm} units left; ${m2} has ${S} − ${S*c/d} = ${ls} units left.`,`${lm} + ${ls} = ${U} units = ${U*u}, so 1 unit = ${u}`,`${askM?m1:m2} at first: ${askM?M:S} × ${u} = ${(askM?M:S)*u}`],vk:'p6_ratio:fracleft'}}),
+ // two age ratios, years apart
+ G(()=>{const [who,he,his]=person(),par=pick(['mother','father']),c=ri(4,15),f=c+ri(24,38),y=ri(3,20),fut=rnd()<.6;const c2=fut?c+y:c-y,f2=fut?f+y:f-y;if(c2<1)return null;
+  const g1=gcd(c,f),g2=gcd(c2,f2),p=c/g1,q=f/g1,r=c2/g2,s=f2/g2;if(q>12||s>12||p===r&&q===s)return null;const L=lcm(q-p,s-r),P1=p*L/(q-p),Q1=q*L/(q-p),R1=r*L/(s-r),d=Math.abs(R1-P1),u=y/d;if(!Number.isInteger(u)||u<2)return null;const askP=rnd()<.5;
+  return{q:`The ratio of ${who}’s age to ${his} ${par}’s age is ${rt(p,q)} now. ${fut?`In ${N(y)} years’ time, the ratio will be`:`${N(y)} years ago, the ratio was`} ${rt(r,s)}. How old is ${askP?`${his} ${par}`:who} now?`,ans:askP?f:c,unit:'years',
+   steps:[`The age difference never changes. Make the difference the same (${L} unit${L>1?'s':''}): ${eqR(p,q,P1,Q1)} and ${eqR(r,s,R1,s*L/(s-r))}`,`${who}’s age changed by ${Math.max(P1,R1)} − ${Math.min(P1,R1)} = ${d} unit${d>1?'s':''} = ${y} years, so 1 unit = ${u} years`,askP?`${cap(par)} now: ${Q1} × ${u} = ${f} years`:`${who} now: ${P1} × ${u} = ${c} years`],vk:'p6_ratio:agetwo'}}),
+ // fraction → ratio, then one group leaves
+ G(()=>{const t=ri(3,8),g=ri(1,t-1),r=ri(1,6),s=ri(1,6);if(gcd(g,t)!==1||gcd(r,s)!==1||3*g<t||3*g>2*t)return null;const B=t-g,L=lcm(g,s),b0=B*L/g,b1=r*L/s,d=b0-b1;if(d<=0)return null;const k=ri(2,10),X=d*k,T0=(b0+L)*k;if(T0>300||X<5||X>60)return null;
+  return{q:`${N(g+'/'+t)} of the pupils in a hall were girls. After ${N(X)} boys left the hall, the ratio of boys to girls became ${rt(r,s)}. How many pupils were in the hall at first?`,ans:T0,unit:'pupils',
+   steps:[`Girls are ${g}/${t}, boys are ${B}/${t}: boys : girls = ${B} : ${g}`,`The girls did not change. Make the girls' units the same: ${eqR(B,g,b0,L)} and ${eqR(r,s,b1,L)}`,`${b0} − ${b1} = ${d} units = ${X}, so 1 unit = ${k}`,`At first: ${b0} + ${L} = ${b0+L} units = ${b0+L} × ${k} = ${T0}`],vk:'p6_ratio:fracleave'}}),
+];
+sk('p6_ratio',6,'Fractions','Ratio problems',hi=>pick(hi?RAT_H:RAT_A)());
+
+/* ================= P3: Parallel and perpendicular lines (more) ================= */
+const GC=46,GO=24,GP=v=>GO+v*GC;
+const dots=()=>{let g='';for(let y=0;y<=5;y++)for(let x=0;x<=8;x++)g+=`<circle cx="${GP(x)}" cy="${GP(y)}" r="2.5" style="fill:currentColor;opacity:.35"/>`;return g};
+const POLYS=[[[0,0],[4,0],[4,2],[2,4],[0,4]],[[0,0],[4,0],[4,3],[2,5],[0,3]],[[1,0],[4,0],[5,2],[4,4],[1,4],[0,2]],[[0,0],[2,0],[2,3],[5,3],[5,5],[0,5]],[[0,0],[3,0],[5,2],[5,4],[0,4]],
+ [[1,0],[3,0],[4,1],[4,3],[3,4],[1,4],[0,3],[0,1]],[[0,0],[4,0],[6,2],[6,4],[2,4]],[[0,0],[3,0],[3,2],[6,2],[6,4],[0,4]],[[0,0],[5,0],[3,3],[0,3]],[[0,0],[3,0],[5,2],[5,4],[2,4],[0,2]],[[0,1],[2,0],[4,1],[4,4],[0,4]],[[0,0],[2,0],[2,2],[4,2],[4,0],[6,0],[6,4],[0,4]]];
+function gridPoly(){for(;;){const t=pick(POLYS),f=ri(0,7);let pts=t.map(([x,y])=>{let X=x,Y=y;if(f&1)X=-X;if(f&2)Y=-Y;if(f&4)[X,Y]=[Y,X];return[X,Y]});
+  const mx=Math.min(...pts.map(p=>p[0])),my=Math.min(...pts.map(p=>p[1]));pts=pts.map(([x,y])=>[x-mx,y-my]);const W=Math.max(...pts.map(p=>p[0])),H=Math.max(...pts.map(p=>p[1]));if(W>8||H>5)continue;
+  const ox=ri(0,8-W),oy=ri(0,5-H),st=ri(0,pts.length-1);pts=pts.map(([x,y])=>[x+ox,y+oy]);return[...pts.slice(st),...pts.slice(0,st)]}}
+function polySVG(pts){const n=pts.length,cx=pts.reduce((a,p)=>a+p[0],0)/n,cy=pts.reduce((a,p)=>a+p[1],0)/n;let g=dots()+`<polygon class="d-e" points="${pts.map(p=>GP(p[0])+','+GP(p[1])).join(' ')}" style="stroke-width:3;fill-opacity:.4"/>`;
+  pts.forEach((p,i)=>{let dx=p[0]-cx,dy=p[1]-cy;const L=Math.hypot(dx,dy)||1;g+=tx(GP(p[0])+dx/L*16,GP(p[1])+dy/L*16+5,'ABCDEFGH'[i],'d-sm2')});
+  return sv(2*GO+8*GC,2*GO+5*GC,g,'A figure on a dot grid',440)}
+const sides=pts=>pts.map((p,i)=>{const q=pts[(i+1)%pts.length];return{v:[q[0]-p[0],q[1]-p[1]],nm:'ABCDEFGH'[i]+'ABCDEFGH'[(i+1)%pts.length]}});
+const isPar=(a,b)=>a[0]*b[1]-a[1]*b[0]===0,isPerp=(a,b)=>a[0]*b[0]+a[1]*b[1]===0;
+// rectangle with lines drawn inside it: count right angles at every corner/junction
+function rtFig(W,H,segs){const all=[[0,0,W,0],[W,0,W,H],[W,H,0,H],[0,H,0,0],...segs],c=40,o=20;
+  const g=all.map(s=>ln(o+s[0]*c,o+s[1]*c,o+s[2]*c,o+s[3]*c,'d-l')).join('');return sv(2*o+W*c,2*o+H*c,g,'A rectangle with lines drawn in it',360)}
+function rtCount(W,H,segs){const all=[[0,0,W,0],[W,0,W,H],[W,H,0,H],[0,H,0,0],...segs];let c=0,T=0,X=0;
+  for(let x=0;x<=W;x++)for(let y=0;y<=H;y++){const d=[0,0,0,0];for(const [x1,y1,x2,y2] of all){if(y1===y2&&y===y1){const a=Math.min(x1,x2),b=Math.max(x1,x2);if(x>=a&&x<b)d[0]=1;if(x>a&&x<=b)d[2]=1}if(x1===x2&&x===x1){const a=Math.min(y1,y2),b=Math.max(y1,y2);if(y>=a&&y<b)d[3]=1;if(y>a&&y<=b)d[1]=1}}
+    const n=d.filter(Boolean).length,ra=[0,1,2,3].filter(i=>d[i]&&d[(i+1)%4]).length;if(ra===1)c++;else if(ra===2)T++;else if(ra===4)X++}
+  return{c,T,X,tot:c+2*T+4*X}}
+const rtSteps=(r)=>[`A corner makes 1 right angle, a T-join makes 2, and a cross makes 4.`,`Corners: ${r.c}. T-joins: ${r.T}.${r.X?` Crosses: ${r.X}.`:''}`,`${r.c} + ${r.T} × 2${r.X?` + ${r.X} × 4`:''} = ${r.tot} right angles`];
+const LET={E:[[0,0,0,6],[0,0,4,0],[0,3,3,3],[0,6,4,6]],F:[[0,0,0,6],[0,0,4,0],[0,3,3,3]],H:[[0,0,0,6],[4,0,4,6],[0,3,4,3]],I:[[2,0,2,6],[0,0,4,0],[0,6,4,6]],L:[[0,0,0,6],[0,6,4,6]],T:[[0,0,4,0],[2,0,2,6]],U:[[0,0,0,6],[0,6,4,6],[4,6,4,0]],
+ N:[[0,6,0,0],[0,0,4,6],[4,6,4,0]],Z:[[0,0,4,0],[4,0,0,6],[0,6,4,6]],M:[[0,6,0,0],[0,0,2,3],[2,3,4,0],[4,0,4,6]],V:[[0,0,2,6],[2,6,4,0]],A:[[0,6,2,0],[2,0,4,6],[1,3,3,3]],Y:[[0,0,2,3],[4,0,2,3],[2,3,2,6]]};
+const letHas=(k,par)=>{const S=LET[k].map(s=>[s[2]-s[0],s[3]-s[1]]);for(let i=0;i<S.length;i++)for(let j=i+1;j<S.length;j++)if(par?isPar(S[i],S[j]):isPerp(S[i],S[j]))return true;return false};
+function letSVG(ks){const sc=10,bw=86,o=16;let g='';ks.forEach((k,i)=>{const x0=o+i*bw+15,y0=o;g+=`<g class="lt">`+LET[k].map(s=>`<line class="d-l" x1="${x0+s[0]*sc}" y1="${y0+s[1]*sc}" x2="${x0+s[2]*sc}" y2="${y0+s[3]*sc}" style="stroke-width:5;stroke-linecap:round"/>`).join('')+`</g>`});
+  return sv(2*o+ks.length*bw,2*o+60,g,'Capital letters drawn with straight lines',440)}
+function ptsSVG(ab,P){let g=dots();g+=`<line class="d-l" x1="${GP(ab[0])}" y1="${GP(ab[1])}" x2="${GP(ab[2])}" y2="${GP(ab[3])}" style="stroke-width:3.5;stroke:var(--accent,#2b5bd7)"/>`;
+  const dx=ab[2]-ab[0],dy=ab[3]-ab[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L;g+=tx(GP(ab[0])-ux*16,GP(ab[1])-uy*16+5,'A','d-sm2')+tx(GP(ab[2])+ux*16,GP(ab[3])+uy*16+5,'B','d-sm2');
+  for(const [nm,x,y] of P)g+=`<circle class="d-dot" cx="${GP(x)}" cy="${GP(y)}" r="5"${nm==='C'?' style="fill:var(--accent,#2b5bd7)"':''}/>`+tx(GP(x)+12,GP(y)-8,nm,'d-sm2','start');
+  return sv(2*GO+8*GC,2*GO+5*GC,g,'Line AB and some points on a dot grid',440)}
+const stepDir=([dx,dy])=>`${Math.abs(dx)} ${dx>=0?'right':'left'} and ${Math.abs(dy)} ${dy>0?'down':'up'}`;
+
+addVariants('p3_lines',[
+ // sides of a drawn figure parallel / perpendicular to AB
+ G(()=>{const pts=gridPoly(),S=sides(pts),par=rnd()<.5,ab=S[0].v,hit=S.slice(1).filter(s=>par?isPar(s.v,ab):isPerp(s.v,ab));if(!hit.length)return null;
+  return{q:`How many sides of the figure are <b>${par?'parallel':'perpendicular'}</b> to side AB?`,svg:polySVG(pts),ans:hit.length,unit:'sides',
+   steps:[par?`Parallel sides go in the same direction and never meet, however long you draw them.`:`Perpendicular sides meet (or would meet if drawn longer) at a right angle.`,`Check each side against AB: ${hit.map(s=>s.nm).join(', ')}.`,`That is ${hit.length} side${hit.length>1?'s':''}.`],vk:'p3_lines:sides'}}),
+ // letters with parallel / perpendicular lines
+ G(()=>{const ks=shuffle(Object.keys(LET)).slice(0,6),par=rnd()<.5,yes=ks.filter(k=>letHas(k,par));if(yes.length<2||yes.length>5)return null;
+  return{q:`How many of these letters have at least one pair of <b>${par?'parallel':'perpendicular'}</b> lines?`,svg:letSVG(ks),ans:yes.length,unit:'letters',
+   steps:[par?`Look for two lines in the same letter that go the same way and never meet.`:`Look for two lines in the same letter that meet at a right angle.`,`Letters that have them: ${yes.join(', ')}.`,`That is ${yes.length} letters.`],vk:'p3_lines:letters'}}),
+ // right angles in a rectangle split by full lines
+ G(()=>{const W=pick([5,6]),H=4,vert=rnd()<.5,k=ri(1,3),segs=[];if(rnd()<.3){const x=ri(1,W-1),y=ri(1,H-1);segs.push([x,0,x,H],[0,y,W,y])}
+  else{const xs=shuffle(Array.from({length:(vert?W:H)-1},(_,i)=>i+1)).slice(0,k);for(const v of xs)segs.push(vert?[v,0,v,H]:[0,v,W,v])}
+  const r=rtCount(W,H,segs);
+  return{q:`Lines are drawn inside a rectangle as shown. How many <b>right angles</b> are there in the figure?`,svg:rtFig(W,H,segs),ans:r.tot,unit:'right angles',steps:rtSteps(r),vk:'p3_lines:rtangles'}}),
+],[
+ // pairs of parallel / perpendicular sides of a grid figure
+ G(()=>{const pts=gridPoly(),S=sides(pts),par=rnd()<.5,pr=[];for(let i=0;i<S.length;i++)for(let j=i+1;j<S.length;j++)if(par?isPar(S[i].v,S[j].v):isPerp(S[i].v,S[j].v))pr.push(S[i].nm+' and '+S[j].nm);if(pr.length<2||pr.length>9)return null;
+  return{q:`How many pairs of <b>${par?'parallel':'perpendicular'}</b> sides does the figure have? (Count sides that ${par?'go the same way':'would meet at a right angle'} even if they do not touch.)`,svg:polySVG(pts),ans:pr.length,unit:'pairs',
+   steps:[par?`Group the sides that go the same way: across, up and down, or the same slant.`:`Pair each side with every side that is at a right angle to it.`,`Pairs: ${pr.join('; ')}.`,`Total: ${pr.length} pairs`],vk:'p3_lines:polypairs'}}),
+ // which lines through C are perpendicular / parallel to AB
+ G(()=>{const D=pick([[2,1],[1,2],[1,-2],[2,-1],[1,1],[1,-1],[3,1],[1,-3]]),k=Math.abs(D[0])+Math.abs(D[1])>3?1:ri(1,2),x=ri(0,8),y=ri(0,5),ab=[x,y,x+D[0]*k,y+D[1]*k];if(ab[2]<0||ab[2]>8||ab[3]<0||ab[3]>5)return null;
+  const par=rnd()<.5,dir=par?D:[-D[1],D[0]],C=[ri(0,8),ri(0,5)],taken=new Set([C.join(',')]);
+  const onAB=p=>{for(let t=0;t<=k;t++)if(p[0]===x+D[0]*t&&p[1]===y+D[1]*t)return true;return false};if(onAB(C))return null;
+  const good=[];for(let t=-8;t<=8;t++){if(!t)continue;const p=[C[0]+dir[0]*t,C[1]+dir[1]*t];if(p[0]>=0&&p[0]<=8&&p[1]>=0&&p[1]<=5&&!onAB(p))good.push(p)}if(!good.length)return null;
+  const ng=Math.min(good.length,ri(1,3)),Pk=shuffle(good).slice(0,ng);Pk.forEach(p=>taken.add(p.join(',')));
+  const bad=[];let tries=0;while(bad.length<5-ng&&tries<200){tries++;const p=[ri(0,8),ri(0,5)],v=[p[0]-C[0],p[1]-C[1]];if(taken.has(p.join(','))||onAB(p)||isPar(v,dir))continue;if(Math.abs(v[0])>4||Math.abs(v[1])>4)continue;taken.add(p.join(','));bad.push(p)}if(bad.length<5-ng)return null;
+  const all=shuffle([...Pk.map(p=>[p,1]),...bad.map(p=>[p,0])]),nm=['P','Q','R','S','T'],P=all.map(([p],i)=>[nm[i],p[0],p[1]]),yes=all.map((a,i)=>a[1]?'C'+nm[i]:null).filter(Boolean);
+  return{q:`A straight line is drawn from point C to each of the points P, Q, R, S and T. How many of these lines are <b>${par?'parallel':'perpendicular'}</b> to line AB?`,svg:ptsSVG(ab,[['C',...C],...P]),ans:yes.length,unit:'lines',
+   steps:[`On the grid, AB goes ${stepDir(D)}.`,par?`A parallel line goes the same way: ${stepDir(D)} (or a multiple of it).`:`A perpendicular line is AB turned a right angle: ${stepDir(dir)} (or a multiple, or the opposite way).`,`Lines that do this: ${yes.join(', ')}.`,`That is ${yes.length} line${yes.length>1?'s':''}.`],vk:'p3_lines:through'}}),
+ // right angles with crossings and part-lines
+ G(()=>{const W=6,H=4,xs=shuffle([1,2,3,4,5]),ys=shuffle([1,2,3]),a=ri(1,2),b=ri(1,2),V=xs.slice(0,a),Hh=ys.slice(0,b),segs=[...V.map(v=>[v,0,v,H]),...Hh.map(h=>[0,h,W,h])],np=ri(1,2);
+  for(let i=0;i<np;i++){if(rnd()<.5){const x=xs[a+i],h=pick(Hh),top=rnd()<.5;segs.push(top?[x,0,x,h]:[x,h,x,H])}else{const h0=ys[b+i];if(h0==null)continue;const v=pick(V),lf=rnd()<.5;segs.push(lf?[0,h0,v,h0]:[v,h0,W,h0])}}
+  const r=rtCount(W,H,segs);if(r.X<1||r.tot>36)return null;
+  return{q:`Lines are drawn inside a rectangle as shown. How many <b>right angles</b> are there in the figure?`,svg:rtFig(W,H,segs),ans:r.tot,unit:'right angles',steps:rtSteps(r),vk:'p3_lines:rtgrid'}}),
+]);
+
+/* ================= P4: Line symmetry (more) ================= */
+// same drawing as the existing p4_sym grid figures (symSVG2 lives in another private block)
+function symGrid(n,S){const c=34,o=18;let g='';for(let y=0;y<n;y++)for(let x=0;x<n;x++)g+=`<rect class="${S.has(x+','+y)?'d-a':'d-e'}" x="${o+x*c}" y="${o+y*c}" width="${c}" height="${c}" style="stroke-width:1.2"/>`;
+  return sv(2*o+n*c,2*o+n*c,g,'Shaded squares on a grid',300)}
+const symLines=S=>{const P=[...S].map(k=>k.split(',').map(Number)),x0=Math.min(...P.map(p=>p[0])),x1=Math.max(...P.map(p=>p[0])),y0=Math.min(...P.map(p=>p[1])),y1=Math.max(...P.map(p=>p[1])),sq=x1-x0===y1-y0;
+  const T={upright:p=>[x0+x1-p[0],p[1]],flat:p=>[p[0],y0+y1-p[1]]};if(sq){T['slanting (\\)']=p=>[p[1]-y0+x0,p[0]-x0+y0];T['slanting (/)']=p=>[x1-(p[1]-y0),y1-(p[0]-x0)]}
+  return Object.keys(T).filter(k=>P.every(p=>S.has(T[k](p).join(','))))};
+const connected=S=>{const a=[...S],seen=new Set([a[0]]),st=[a[0]];while(st.length){const [x,y]=st.pop().split(',').map(Number);for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const k=(x+dx)+','+(y+dy);if(S.has(k)&&!seen.has(k)){seen.add(k);st.push(k)}}}return seen.size===S.size};
+const LSYM={A:1,B:1,C:1,D:1,E:1,H:2,I:2,M:1,T:1,U:1,V:1,W:1,X:2,Y:1,F:0,G:0,J:0,L:0,N:0,P:0,Q:0,R:0,S:0,Z:0};
+const WV=['MOM','WOW','TOT','MUM','OTTO','AHA','TOOT'],WH=['BOX','BED','HIDE','CODE','DICE','ECHO','DECIDE','CHOICE','HOOD','ICE','OBOE'],WN=['CAT','SUN','FISH','LAMP','DOG','PEN','STAR','TREE','MOON','TOY','HAT','RAIN','MUD','TAP'];
+addVariants('p4_sym',[
+ // how many lines of symmetry does a grid figure have
+ G(()=>{const n=6,grp=pick([[],['v'],['h'],['d'],['v','h'],['v','h','d']]),S0=new Set(),k=ri(3,6);while(S0.size<k)S0.add(ri(0,n-1)+','+ri(0,n-1));
+  const fold={v:([x,y])=>[n-1-x,y],h:([x,y])=>[x,n-1-y],d:([x,y])=>[y,x]},S=new Set(S0);let ch=true;while(ch){ch=false;for(const c of [...S]){const p=c.split(',').map(Number);for(const t of grp){const q=fold[t](p).join(',');if(!S.has(q)){S.add(q);ch=true}}}}
+  if(S.size<5||S.size>16||!connected(S))return null;const L=symLines(S);if(!L.length&&rnd()<.5)return null;
+  return{q:`How many lines of symmetry does the shaded figure have?`,svg:symGrid(n,S),ans:L.length,unit:'lines',
+   steps:[`Try to fold the figure along an upright line, a flat line and the two slanting lines through its middle.`,`The halves must match exactly, square for square.`,L.length?`Folds that work: the ${listAnd(L)} line${L.length>1?'s':''}. So there ${L.length>1?'are':'is'} ${L.length} line${L.length>1?'s':''} of symmetry.`:`None of the folds match, so there are 0 lines of symmetry.`],vk:'p4_sym:count'}}),
+ // letters with at least one line of symmetry
+ G(()=>{const ks=shuffle(Object.keys(LSYM)).slice(0,7).sort(),yes=ks.filter(k=>LSYM[k]>0);if(yes.length<2||yes.length>5)return null;
+  return{q:`How many of these capital letters have <b>at least one</b> line of symmetry?`+EQ(ks.join('&nbsp;&nbsp;')),ans:yes.length,unit:'letters',
+   steps:[`Imagine folding each letter so the two halves match. The fold can be upright or flat.`,(()=>{const t=ks.filter(k=>'NSZ'.includes(k));return `${t.length?listAnd(t)+(t.length>1?' only match':' only matches')+' when turned, not folded. ':''}Letters that fold: ${yes.join(', ')}.`})(),`That is ${yes.length} letters.`],vk:'p4_sym:letters'}}),
+],[
+ // shade one more touching square to make the figure symmetric
+ G(()=>{const n=6,k=ri(4,7),S=new Set();S.add(ri(1,4)+','+ri(1,4));let g=0;while(S.size<k&&g<200){g++;const [x,y]=pick([...S]).split(',').map(Number),[dx,dy]=pick([[1,0],[-1,0],[0,1],[0,-1]]),nx=x+dx,ny=y+dy;if(nx<0||ny<0||nx>=n||ny>=n)continue;S.add(nx+','+ny)}
+  if(S.size<k||symLines(S).length)return null;const good=[];
+  for(let x=0;x<n;x++)for(let y=0;y<n;y++){const c=x+','+y;if(S.has(c))continue;if(![[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>S.has((x+dx)+','+(y+dy))))continue;const T=new Set(S);T.add(c);const L=symLines(T);if(L.length)good.push([x,y,L[0]])}
+  if(good.length<1||good.length>4)return null;
+  return{q:`Shade <b>one</b> more square that shares a side with the figure, so that the new figure has a line of symmetry. How many different squares could you choose?`,svg:symGrid(n,S),ans:good.length,unit:'squares',
+   steps:[`Try each empty square that touches the figure.`,`After shading it, check for an upright, flat or slanting fold that makes the halves match.`,`These work: ${good.map(([x,y,l])=>`${pos(x,y)} (${l} line)`).join('; ')}.`,`That is ${good.length} square${good.length>1?'s':''}.`],vk:'p4_sym:addone'}}),
+ // words with a line of symmetry
+ G(()=>{const v=ri(0,2),h=ri(0,2),z=ri(2,4);if(v+h<1||v+h+z>6)return null;const ws=shuffle([...shuffle(WV).slice(0,v),...shuffle(WH).slice(0,h),...shuffle(WN).slice(0,z)]),yes=ws.filter(w=>WV.includes(w)||WH.includes(w));if(yes.length<2)return null;
+  return{q:`The words are written in capital letters. How many of the words have a line of symmetry?`+EQ(ws.join('&nbsp;&nbsp;')),ans:yes.length,unit:'words',
+   steps:[`Upright fold: the word must read the same backwards, and every letter must have an upright line of symmetry (like MOM).`,`Flat fold: every letter must have a flat line of symmetry (like BOX).`,`Words that work: ${yes.join(', ')}.`,`That is ${yes.length} words.`],vk:'p4_sym:words'}}),
+]);
+})();
+
 /* ---------- storage ---------- */
 function load(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}}
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
@@ -4579,7 +4996,7 @@ function check(Q,s){
   if(ok&&Q.simp&&p.d&&gcd(p.n,p.d)!==1)return{ok:false,soft:true,msg:'Right value! Now write it in simplest form.'};
   return{ok};
 }
-const fmtHint=Q=>Q.type==='time'?'Type a time like 4:30':Q.type==='time24'?'Type 24-hour time like 19:45':Q.type==='frac'?'Type a fraction like 3/4':Q.pre==='$'?'Type dollars like 12.50':'';
+const fmtHint=Q=>Q.type==='time'?'Type a time like 4:30':Q.type==='time24'?'Type 24-hour time like 19:45':Q.type==='frac'?'Type a fraction like 3/4 or 2 1/3':Q.pre==='$'?'Type dollars like 12.50':'';
 
 /* ---------- state ---------- */
 const S={lvl:load('bml-lvl',1),view:'home',topic:null,mode:'learn',step:0,exHi:false,diff:load('bml-diff','auto'),p:null,test:null};
@@ -4681,7 +5098,7 @@ function skNew(){
 }
 function keypad(){
   const k=(v,l,c)=>`<button class="${c||''}" data-act="key" data-k="${v}" aria-label="${l||v}">${l||v}</button>`;
-  return `<div class="keys">${k(7)}${k(8)}${k(9)}${k('B','⌫','fn')}${k(4)}${k(5)}${k(6)}${k('C','C','fn')}${k(1)}${k(2)}${k(3)}${k('/','/','fn')}${k(0)}${k('.','.','fn')}${k(':',':','fn')}<span></span>
+  return `<div class="keys">${k(7)}${k(8)}${k(9)}${k('B','⌫','fn')}${k(4)}${k(5)}${k(6)}${k('C','C','fn')}${k(1)}${k(2)}${k(3)}${k('/','/','fn')}${k(0)}${k('.','.','fn')}${k(':',':','fn')}${k(' ','space','fn sp')}
     <button class="go" data-act="check">Check</button></div>`;
 }
 function disp(Q,input){return `<div class="display${S.badInput&&input?' bad':''}" aria-live="polite">${Q.pre&&input?Q.pre:''}${input||'&nbsp;'}<small>${Q.unit}</small></div>${fmtHint(Q)?`<span class="fmt">${fmtHint(Q)}</span>`:''}`}
@@ -5171,7 +5588,7 @@ document.addEventListener('keydown',e=>{
   if(e.target.matches('input,textarea')||e.metaKey||e.ctrlKey||e.altKey)return;
   if(!OV.hidden){if(e.key==='Enter'){const b=OV.querySelector('[data-ov]');if(b){e.preventDefault();b.click()}}return}
   const keys=document.querySelector('.keys');
-  if(keys){let k=null;if(/^[0-9.:\/]$/.test(e.key))k=e.key;else if(e.key==='Backspace')k='B';else if(e.key==='Escape')k='C';
+  if(keys){let k=null;if(/^[0-9.:\/]$/.test(e.key))k=e.key;else if(e.key===' '&&!e.target.matches('a,[role=button],summary'))k=' ';else if(e.key==='Backspace')k='B';else if(e.key==='Escape')k='C';
     if(k){const b=keys.querySelector(`[data-k="${k}"]`);if(b){e.preventDefault();b.click()}return}
     if(e.key==='Enter'){e.preventDefault();keys.querySelector('[data-act="check"]').click();return}}
   if(e.key==='Enter'&&!e.target.matches('button,a,[role=button]')){const b=document.querySelector('[data-act="spnext"],[data-act="newq"],[data-act="next"],[data-act="sknext"]');if(b){e.preventDefault();b.click()}}
@@ -5817,7 +6234,7 @@ function keysNeeded(){
   if(o.stage==='work'&&o.w&&o.w.items[o.w.i]){const t=o.w.items[o.w.i].tok;return{dot:t.includes('.'),sl:t.includes('/'),col:t.includes(':')}}
   const Q=o.Q;return{dot:!Number.isInteger(Q.ans)||Q.pre==='$'||/\d\.\d/.test(Q.q),sl:Q.type==='frac',col:Q.type==='time'||Q.type==='time24'}}
 function tuneKeys(){const k=app.querySelector('.keys');if(!k||k.dataset.tuned)return;const n=keysNeeded();if(!n)return;k.dataset.tuned=1;
-  const set=(key,on)=>{const b=k.querySelector(`[data-k="${key}"]`);if(b)b.classList.toggle('kh',!on)};set('.',n.dot);set('/',n.sl);set(':',n.col)}
+  const set=(key,on)=>{const b=k.querySelector(`[data-k="${key}"]`);if(b)b.classList.toggle('kh',!on)};set('.',n.dot);set('/',n.sl);set(':',n.col);set(' ',n.sl)}
 new MutationObserver(tuneKeys).observe(app,{childList:true,subtree:true});
 
 /* read feedback aloud too, when auto read-aloud is on */
@@ -6087,6 +6504,98 @@ const _pv13=parentsView;parentsView=function(){_pv13();const pn=app.querySelecto
 /* round 14: P1–P2 sprints get at most 2 Olympiad questions besides the Boss */
 const _spPick14=spPickItem;spPickItem=function(){let it=_spPick14();if(S.lvl<=2&&SP&&SP.mode==='sprint'&&!it.boss&&!it.twin){const isO=x=>byId(x.tid).strand==='Olympiad';for(let k=0;k<8&&isO(it)&&(SP.olyN||0)>=2;k++)it=_spPick14();if(isO(it))SP.olyN=(SP.olyN||0)+1}return it};
 const _closeOv14=closeOv;closeOv=function(){_closeOv14();setTimeout(()=>{if(OV.hidden)flushQueue()},250)};
+/* ================= ROUND 15 (v24): 20 improvements ================= */
+/* 1. mixed numbers: type 2 1/3 with the space key */
+const _pi15=parseIn;parseIn=function(s,type){const m=String(s).trim().match(/^(\d+)\s+(\d+)\/(\d+)$/);if(m&&type!=='time'&&type!=='time24'){const w=+m[1],n=+m[2],d=+m[3];if(!d)return null;return{v:w+n/d,n:w*d+n,d,mixed:true,part:n}}return _pi15(s,type)};
+const _ck15=check;check=function(Q,s){const m=String(s||'').trim().match(/^(\d+)\s+(\d+)\/(\d+)$/);if(m&&!Q.type.startsWith('time')&&+m[2]>=+m[3]&&+m[3]>0)return{ok:false,soft:true,msg:'In a mixed number the fraction part is less than 1, like 2 1/3.'};return _ck15(Q,s)};
+const _pt15=parseTok;parseTok=function(tok){const m=String(tok).trim().match(/^(\d+)\s+(\d+)\/(\d+)$/);if(m)return{v:+m[1]+ +m[2]/+m[3]};return _pt15(tok)};
+const _ki15=keyInput;keyInput=function(cur,k){if(k===' '){if(S.badInput||!cur||/[ /.:]/.test(cur))return cur;return cur.length<8?cur+' ':cur}return _ki15(cur,k)};
+
+/* 2. stacked fractions in questions, steps, answers and papers */
+const FR_SEL='.q,.steps,.chk,.work .ans,.mkopt,.pqt,.pk,.popts,.fb,.wlist,.eq';
+function stackFr(root){if(!root||root.nodeType!==1)return;const tw=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>{const p=n.parentElement;return p&&/(\d|☐|\?)\/\d/.test(n.nodeValue)&&p.closest(FR_SEL)&&!p.closest('svg,.display,.keys,.fr,textarea,input,.fmt')?1:2}});
+  const L=[];while(tw.nextNode())L.push(tw.currentNode);
+  for(const n of L){const s=n.nodeValue,re=/(\d+|☐|\?)\/(\d+)(?![\d\/])/g;let m,last=0;const f=document.createDocumentFragment();
+    while((m=re.exec(s))){if(m.index>0&&/[\d\/]/.test(s[m.index-1]))continue;f.append(s.slice(last,m.index));const sp=document.createElement('span');sp.className='fr';sp.innerHTML=`<span class="fn">${m[1]}</span><span class="fs">/</span><span class="fd">${m[2]}</span>`;f.append(sp);last=m.index+m[0].length}
+    if(!last)continue;f.append(s.slice(last));n.replaceWith(f)}}
+new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes){if(n.nodeType===1)stackFr(n);else if(n.nodeType===3&&n.parentElement)stackFr(n.parentElement)}}).observe(app,{childList:true,subtree:true});
+const _speak15=speak;speak=function(t){_speak15(String(t).replace(/(\d|☐)\s*\/\s*(\d)/g,'$1/$2'))};
+
+/* 3. "Your turn" after an example gives a question of the same kind; 4. choose a kind */
+function genKind(t,key){const tiers=key.startsWith('base:')?[key==='base:h']:(t.strand==='Olympiad'?[true]:[false,true]);
+  for(let i=0;i<500;i++){const hi=tiers[i%tiers.length];let Q;try{Q=norm(t.gen(hi))}catch(e){continue}if(tyKey(Q,hi)===key)return{Q,hi}}return null}
+const _skNew15=skNew;skNew=function(){_skNew15();const w=S.wantKind;if(!w||!S.p||!S.topic||S.topic.id!==w.tid)return;S.wantKind=null;const r=genKind(S.topic,w.key);if(!r)return;const p=S.p;delete p.w;delete p.ow;delete p.wg;delete p.strat;p.Q=r.Q;p.hi=r.hi;p.input='';p.stage=preStage(p);S.seenQ&&S.seenQ.add(r.Q.q)};
+const _skL15=skLearn;skLearn=function(){_skL15();const b=app.querySelector('.panel [data-act="practice"]');if(b){b.dataset.act='trylike';b.textContent='Try one like this →'}};
+const _skP15=skPractice;skPractice=function(){_skP15();const c=app.querySelector('.tychip');if(c&&c.tagName!=='BUTTON'){const b=document.createElement('button');b.className=c.className;b.dataset.act='kinds';b.innerHTML=c.innerHTML+' ▾';b.setAttribute('aria-label','Choose a kind of question');c.replaceWith(b)}};
+const KSAMPLE={};
+function kindsView(){const t=S.topic;if(!t)return;const keys=[...typesOf(t)],done=tySolved(t.id);
+  const rows=keys.map(k=>{const s=KSAMPLE[t.id+'|'+k]||(KSAMPLE[t.id+'|'+k]=(()=>{const r=genKind(t,k);return r?{txt:plain(r.Q.q.replace(/<br\s*\/?>/g,' ')).replace(/\s+/g,' ').trim(),hi:r.hi}:null})());if(!s)return '';const txt=s.txt.length>78?s.txt.slice(0,76).replace(/\s\S*$/,'')+' …':s.txt;
+    return `<button class="kindrow${done.has(k)?' kdone':''}" data-kind="${k}"><span class="kmark">${done.has(k)?'✓':''}</span><span class="ktxt">${txt}</span><span class="ktier">${t.strand==='Olympiad'?'':s.hi?'High':'Avg'}</span></button>`}).join('');
+  overlay(`<h2>Pick a kind</h2><div class="kindlist">${rows}</div><div class="nav"><button class="btn ghost" data-ov="close">Close</button></div>`)}
+OV.addEventListener('click',e=>{const b=e.target.closest('[data-kind]');if(!b||!S.topic)return;S.wantKind={tid:S.topic.id,key:b.dataset.kind};OV.hidden=true;OV.innerHTML='';S.p=null;S.mode='practice';topicView()});
+
+/* 5. EOY countdown + today's two revision topics (date set on the parent page) */
+const eoyDays=()=>{if(!D.eoy)return null;const d=new Date(D.eoy+'T00:00:00'),n=new Date();n.setHours(0,0,0,0);return Math.round((d-n)/864e5)};
+function eoyPicks(L){const syl=byLvl(L).filter(t=>!(t.skill&&t.strand==='Olympiad'));const nw=needsWork(L).map(x=>x.t).filter(t=>syl.includes(t));
+  const rest=withSeed(hash('eoy'+todayKey()+L),()=>shuffle(syl.filter(t=>!nw.includes(t)&&!(prog[t.id]&&prog[t.id].m))));const all=[...nw,...rest,...withSeed(hash('eoy2'+todayKey()),()=>shuffle(syl))];
+  const out=[];for(const t of all)if(!out.includes(t)&&out.length<2)out.push(t);return out}
+
+/* 11. topic search on home */
+const _home15=home;home=function(){_home15();if(S.view!=='home')return;
+  const n=eoyDays(),td=app.querySelector('.today');
+  if(n!=null&&n>=0&&n<=60&&td&&!app.querySelector('.eoyband')){const ps=eoyPicks(S.lvl);
+    td.insertAdjacentHTML('afterend',`<div class="eoyband"><b>${n===0?'EOY exam today. You are ready!':`EOY exam in ${n} day${n>1?'s':''}`}</b>${n>0?`<span class="lvlnote">Today:</span>${ps.map(t=>`<button class="btn ghost small" data-act="open" data-id="${t.id}">${t.title}</button>`).join('')}${n<=21?`<button class="btn ghost small" data-act="mock">Mock exam</button>`:''}`:''}</div>`)}
+  const h=[...app.querySelectorAll('h2.sec')].find(x=>/All topics/.test(x.textContent));
+  if(h&&!app.querySelector('.tsearch')){h.insertAdjacentHTML('afterend',`<div class="tsbox"><input class="tsearch" type="search" placeholder="Find a topic (any level)" aria-label="Find a topic" autocomplete="off"><div class="tsres" aria-live="polite"></div></div>`)}};
+app.addEventListener('input',e=>{if(!e.target.matches('.tsearch'))return;const v=e.target.value.trim().toLowerCase(),out=e.target.nextElementSibling;if(v.length<2){out.innerHTML='';return}
+  const words=v.split(/\s+/),hit=ALL.filter(t=>{const s=(t.title+' '+(t.strand||'model drawing bar model')+' '+(t.kind||'')+' p'+t.lvl).toLowerCase();return words.every(w=>new RegExp('(^|[^a-z])'+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).test(s))}).sort((a,b)=>(a.lvl===S.lvl?0:1)-(b.lvl===S.lvl?0:1)||a.lvl-b.lvl).slice(0,10);
+  out.innerHTML=hit.length?hit.map(t=>`<button class="btn ghost small" data-act="open" data-id="${t.id}"><b>P${t.lvl}</b> ${t.title}${t.strand==='Olympiad'?' ★':''}</button>`).join(''):'<span class="lvlnote">No topic found.</span>'});
+
+/* parent page: 13 jump bar, 7 EOY readiness, 9 revision pack, 10 mistakes worksheet, 12 weekly summary, 8 mock trend */
+function readiness(L){const groups={};for(const t of byLvl(L)){if(t.skill&&t.strand==='Olympiad')continue;const g=t.skill?t.strand:'Model drawing';(groups[g]=groups[g]||[]).push(t)}
+  const ord=[...STRANDS,'Model drawing'];return Object.entries(groups).sort((a,b)=>ord.indexOf(a[0])-ord.indexOf(b[0])).map(([g,ts])=>{const m=ts.filter(t=>prog[t.id]&&prog[t.id].m).length;let a=0,c=0;ts.forEach(t=>{const r=D.ts&&D.ts[t.id];if(r){a+=r.a;c+=r.c}});
+    const acc=a?c/a:0,score=a<5?null:Math.round(100*(.5*m/ts.length+.5*acc));return{g,n:ts.length,m,a,acc,score}})}
+function weekSummary(){const d=new Date();let q=0,c=0,sec=0;for(let i=0;i<7;i++){const x=D.days[dkey(d)];if(x){q+=x.q||0;c+=x.c||0;sec+=x.sec||0}d.setDate(d.getDate()-1)}
+  const L=S.lvl,nw=needsWork(L).slice(0,3).map(x=>x.t.title),mk=(D.mocks||[]).find(m=>m.lvl===L),mins=Math.round(sec/60);
+  return `${me().name} · last 7 days: ${q} question${q===1?'':'s'}${q?`, ${Math.round(c/q*100)}% right`:''}${mins?`, ${mins>=60?Math.floor(mins/60)+' h ':''}${mins%60} min of focused practice`:''}.`+
+    ` P${L} topics mastered: ${byLvl(L).filter(t=>prog[t.id]&&prog[t.id].m).length} of ${byLvl(L).length}.`+(nw.length?` Needs work: ${nw.join(', ')}.`:'')+(mk?` Latest P${L} mock: ${Math.round(mk.got/mk.tot*100)}%.`:'')}
+function printSet(title,items,note){const qs=items.map((it,i)=>`<div class="pq"><div class="pqh"><b>${i+1}.</b><span class="pm">${it.tag||''}</span></div><div class="pqt">${it.Q.q}</div>${it.Q.svg?`<div class="pfig">${it.Q.svg}</div>`:''}${it.Q.bar?'<div class="pfig pnote">Draw a model.</div>':''}${it.hi?'<div class="pwork"></div>':''}<div class="pans">Ans: ______________ ${it.Q.unit||''}</div></div>`).join('');
+  const key=items.map((it,i)=>{const st=it.Q.bar?it.Q.bar.calc.map(c=>c.t):it.Q.steps;return `<div class="pk"><b>${i+1}.</b> ${fullAns(it.Q)}<small>${st.join(' · ')}</small></div>`}).join('');
+  S.view='print';S.printFrom='parents';document.body.classList.add('printing');
+  app.innerHTML=`<div class="no-print ptools"><button class="back" data-act="unprint">← Back</button><button class="btn" data-act="doprint">Print</button><span class="lvlnote">${note}</span></div>
+  <div class="printpaper"><div class="phead"><h2>${title}</h2><div>Name: ____________________ &nbsp; Date: ___________ &nbsp; Score: ____ / ${items.length}</div></div>${qs}<div class="pkey"><h2>Answer key · ${title}</h2>${key}</div></div>`;window.scrollTo(0,0)}
+const qFor=(t,hi)=>t.skill?norm(t.gen(hi)):barQ(t.make(t.rv()));
+function printPack(L){const syl=byLvl(L).filter(t=>t.skill&&t.strand!=='Olympiad'),mods=shuffle(byLvl(L).filter(t=>!t.skill)).slice(0,3);
+  const items=[...syl.map((t,i)=>({t,hi:i%2===1})),...mods.map(t=>({t,hi:true}))].map(({t,hi})=>({Q:qFor(t,hi),hi,tag:t.title}));
+  printSet(`P${L} EOY Revision Pack`,items,`${items.length} questions: one from every P${L} topic, plus model drawing. Answer key on the last pages.`)}
+function printMistakes(){const ms=(D.mistakes||[]).filter(m=>byId(m.tid)).slice(0,20);const items=ms.map(m=>{const t=byId(m.tid);return{Q:qFor(t,m.hi),hi:m.hi,tag:t.title}});
+  printSet(`${me().name}'s Fix-it Sheet`,items,`${items.length} fresh questions on topics ${me().name} got wrong.`)}
+const _pv15=parentsView;parentsView=function(){_pv15();const pn=app.querySelector('.panel');if(!pn||pn.querySelector('.eoyrd'))return;const L=S.lvl;
+  const R=readiness(L),mk=(D.mocks||[]).filter(m=>m.lvl===L),nw=needsWork(L).slice(0,3).map(x=>x.t);const left=eoyDays();
+  const rows=R.map(r=>`<tr><td>${r.g}</td><td class="rdbar"><span class="track"><i style="width:${r.score||0}%"></i></span></td><td>${r.score==null?'–':`<b>${r.score}%</b>`}</td><td><small>${r.m}/${r.n} mastered</small></td></tr>`).join('');
+  const html=`<h3 class="ph" id="pj-eoy">P${L} EOY readiness</h3><div class="eoyrd"><table class="dtable"><tbody>${rows}</tbody></table>
+    <p class="lvlnote">Readiness = half topics mastered, half accuracy (– = fewer than 5 answers). ${mk.length?`Latest P${L} mock: <b>${Math.round(mk[0].got/mk[0].tot*100)}%</b>.`:`No P${L} mock yet.`}${nw.length?` Revise first: <b>${nw.map(t=>t.title).join(', ')}</b>.`:''}</p>
+    <label class="eoyl">EOY exam date <input type="date" class="eoyd" value="${D.eoy||''}"></label>${left!=null&&left>=0?`<small class="lvlnote"> ${left} day${left===1?'':'s'} to go · home page shows 2 topics to revise each day</small>`:''}
+    <div class="pvbtns"><button class="btn ghost small" data-act="ppack">Print P${L} revision pack</button><button class="btn ghost small" data-act="pmist" ${(D.mistakes||[]).length?'':'disabled'}>Print fix-it sheet (${Math.min((D.mistakes||[]).length,20)})</button><button class="btn ghost small" data-act="wcopy">Copy weekly summary</button></div></div>`;
+  const first=pn.querySelector('h3.ph');if(first)first.insertAdjacentHTML('beforebegin',html);else pn.insertAdjacentHTML('afterbegin',html);
+  /* mock trend */
+  const mh=pn.querySelector('.mkhist');if(mh&&mk.length>=2){const pts=mk.slice(0,10).reverse().map(m=>Math.round(m.got/m.tot*100)),W=320,H=110,x=i=>20+i*(W-40)/(pts.length-1),y=v=>H-18-(v/100)*(H-34);
+    mh.insertAdjacentHTML('afterbegin',`<div class="mktrend"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="P${L} mock scores over time"><line class="d-ax" x1="14" y1="${y(0)}" x2="${W-6}" y2="${y(0)}"/><line class="mkt85" x1="14" y1="${y(85)}" x2="${W-6}" y2="${y(85)}"/><text class="d-sm2" x="${W-8}" y="${y(85)-4}" text-anchor="end">85%</text><polyline class="mktl" points="${pts.map((v,i)=>x(i)+','+y(v)).join(' ')}"/>${pts.map((v,i)=>`<circle class="mktd" cx="${x(i)}" cy="${y(v)}" r="4"/><text class="d-sm2" x="${x(i)}" y="${y(v)-8}" text-anchor="middle">${v}</text>`).join('')}</svg></div>`)}
+  /* jump bar */
+  const J=[['Readiness',/EOY readiness/],['This week',/This week/],['Mocks',/Mock exams/],['Settings',/Settings for this device/],['Backup',/Move progress/]];
+  const hs=[...pn.querySelectorAll('h3.ph')];const btns=J.map(([l,re])=>{const h=hs.find(x=>re.test(x.textContent));if(!h)return '';h.id=h.id||'pj-'+l.toLowerCase().replace(/\W/g,'');return `<button class="btn ghost small" data-act="pjump" data-h="${h.id}">${l}</button>`}).join('');
+  if(!pn.querySelector('.pjump'))pn.insertAdjacentHTML('afterbegin',`<nav class="pjump" aria-label="Jump to">${btns}</nav>`)};
+app.addEventListener('change',e=>{if(e.target.matches('.eoyd')){D.eoy=e.target.value||null;saveD();parentsView();const h=document.getElementById('pj-eoy');h&&h.scrollIntoView({block:'start'})}});
+const _gA15=gymAct;gymAct=function(a,el){
+  if(a==='trylike'&&S.topic){const Q=exQ(S.topic,S.exHi);S.wantKind={tid:S.topic.id,key:tyKey(Q,S.topic.strand==='Olympiad'?true:S.exHi)};S.p=null;S.mode='practice';topicView();return true}
+  if(a==='kinds'&&S.topic){kindsView();return true}
+  if(a==='pjump'){const h=document.getElementById(el.dataset.h);h&&h.scrollIntoView({behavior:'smooth',block:'start'});return true}
+  if(a==='ppack'){printPack(S.lvl);return true}
+  if(a==='pmist'){printMistakes();return true}
+  if(a==='wcopy'){const t=weekSummary();const done=()=>toast('Weekly summary copied. Paste it into a message.');try{navigator.clipboard.writeText(t).then(done,()=>overlay(`<h2>Weekly summary</h2><textarea class="wsum" rows="6" readonly>${t}</textarea><div class="nav"><button class="btn" data-ov="close">Done</button></div>`))}catch(e){overlay(`<h2>Weekly summary</h2><textarea class="wsum" rows="6" readonly>${t}</textarea><div class="nav"><button class="btn" data-ov="close">Done</button></div>`)}return true}
+  if(a==='unprint'&&S.printFrom==='parents'&&S.view==='print'){S.printFrom=null;document.body.classList.remove('printing');parentsView();window.scrollTo(0,0);return true}
+  return _gA15(a,el)};
+
 applyFreeze();applyDevice();renderLevels();hud();home();welcome();
 
 </script>
