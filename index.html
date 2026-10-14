@@ -677,6 +677,16 @@ button.tychip{background:transparent;color:inherit;cursor:pointer;font:inherit;f
 .mktrend svg{width:100%;max-width:420px;height:auto}.mktl{fill:none;stroke:var(--accent);stroke-width:3}.mktd{fill:var(--accent)}.mkt85{stroke:var(--ok);stroke-dasharray:5 4;stroke-width:1.5}
 .wsum{width:100%;font:inherit;font-size:15px;padding:10px;border:2px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
 @media print{.fr>.fn{border-bottom-color:#000}}
+
+/* ---- v25 ---- */
+.alline{text-align:center;font-size:17px;margin:6px 0 12px}
+.dgsvg{max-width:100%;height:auto}
+.pgl{stroke:#c3cfdd;stroke-width:1}.pgl2{stroke-dasharray:3 3}
+.pln{stroke:#1B2A4A;stroke-width:2.5}.psol{stroke:#E4572E;stroke-width:3.5}
+.psolr{fill:rgba(228,87,46,.18);stroke:#E4572E;stroke-width:3}.pbar{fill:#7FC8C4;stroke:#1B2A4A;stroke-width:1.5}
+.pdot{fill:#1B2A4A}.ptxt{font:600 14px system-ui,sans-serif;fill:#1B2A4A}
+.ptab{border-collapse:collapse;margin:8px 0}.ptab th,.ptab td{border:1.5px solid #1B2A4A;padding:4px 10px;text-align:center;font-size:15px}
+.pkd{break-inside:avoid}.pkd .pfig{margin:6px 0 12px}
 </style>
 
 <div class="wrap">
@@ -1260,7 +1270,7 @@ sk('p3_area',3,'Geometry','Area and perimeter',hi=>{
   if(!hi){const l=ri(6,15),b=ri(3,l-1),ar=rnd()<.5;return{q:`Find the ${ar?'area':'perimeter'} of the rectangle.`,svg:rectSVG(l,b,l+' cm',b+' cm'),ans:ar?l*b:2*(l+b),unit:ar?'cm²':'cm',steps:ar?[`Area = length × breadth`,`${l} × ${b} = ${l*b} cm²`]:[`Perimeter = ${l} + ${b} + ${l} + ${b}`,`= ${2*(l+b)} cm`]}}
   const b=ri(2,8),k=ri(2,4),l=k*b,P=2*(l+b);
   return{q:`A rectangle has a perimeter of ${N(P+' cm')}. Its length is ${N(k)} times its breadth. What is its area?`,svg:rectSVG(l,b,'?','?'),ans:l*b,unit:'cm²',steps:[`Length + breadth = ${P} ÷ 2 = ${P/2} cm`,`Breadth = 1 unit, length = ${k} units, so ${k+1} units = ${P/2}`,`1 unit = ${b} cm. Breadth = ${b} cm, length = ${l} cm`,`Area = ${l} × ${b} = ${l*b} cm²`]}});
-sk('p3_angles',3,'Geometry','Right angles and turns',hi=>{
+sk('p3_angles',3,'Geometry','Angles',hi=>{
   const P=[12,3,6,9];
   if(!hi){let a,b;do{a=ri(0,3);b=ri(0,3)}while(a===b);const n=mod(b-a,4);return{q:`The minute hand points to ${N(P[a])}. It turns clockwise to ${N(P[b])}. How many right angles has it turned?`,ans:n,unit:'right angles',steps:[`A quarter turn is 1 right angle.`,`${P[a]} to ${P[b]} clockwise is ${n} quarter turn${n>1?'s':''}.`]}}
   const DIR=['the board','the window','the back wall','the door'];let a,b,c,net,need;do{a=ri(2,7);b=ri(1,6);c=ri(1,5);net=a-b+c;need=mod(-net,4)}while(need===0);
@@ -4950,6 +4960,387 @@ addVariants('p4_sym',[
 ]);
 })();
 
+/* ---- P3 EOY additions v25 ---- */
+/* ===== R1: P3 exam depth — angles in figures, numbers in words/order, fraction compare ===== */
+(()=>{
+const _P=h=>String(h).replace(/<svg[\s\S]*?<\/svg>/g,'').replace(/<[^>]+>/g,' ');
+const _nums=t=>(_P(t).replace(/(\d),(\d{3})/g,'$1$2').match(/\d+(\.\d+)?/g)||[]).map(Number);
+// retry until accepted; whole-number answers must not already appear in the question text
+const G=f=>()=>{for(let i=0;i<5000;i++){const Q=f();if(!Q)continue;const ok=Q.inQ;delete Q.inQ;if(!ok&&Q.type!=='frac'&&_nums(Q.q).some(x=>Math.abs(x-Q.ans)<1e-9))continue;return Q}throw new Error('R1: no valid question')};
+const LB='ABCDEFGHIJKL';
+const plu=(n,w)=>n===1?`1 ${w}`:`${n} ${w}s`;
+const isAre=n=>n===1?'is':'are';
+const FQ=(n,d)=>({type:'frac',simp:true,ansText:fs(n,d),ans:n/d});
+
+/* ---------------- grid + polygon helpers ---------------- */
+const GC=46,GO=24,GP=v=>GO+v*GC;
+const dots=(W,H)=>{let g='';for(let y=0;y<=H;y++)for(let x=0;x<=W;x++)g+=`<circle cx="${GP(x)}" cy="${GP(y)}" r="2.5" style="fill:currentColor;opacity:.35"/>`;return g};
+const cross=(a,b)=>a[0]*b[1]-a[1]*b[0],dot=(a,b)=>a[0]*b[0]+a[1]*b[1],sub=(a,b)=>[a[0]-b[0],a[1]-b[1]];
+const sarea=p=>p.reduce((s,a,i)=>{const b=p[(i+1)%p.length];return s+a[0]*b[1]-b[0]*a[1]},0);
+// drop corners where the outline goes straight on
+const simp=p=>{let q=p.slice(),ch=true;while(ch&&q.length>3){ch=false;for(let i=0;i<q.length;i++){const a=q[(i+q.length-1)%q.length],b=q[i],c=q[(i+1)%q.length];if(cross(sub(b,a),sub(c,b))===0){q.splice(i,1);ch=true;break}}}return q};
+// kind of the angle inside the figure at each corner
+const kinds=p=>{const n=p.length,A=sarea(p);return p.map((b,i)=>{const a=p[(i+n-1)%n],c=p[(i+1)%n],cr=cross(sub(b,a),sub(c,b));if(cr===0)return'straight';if(cr*A<0)return'reflex';const d=dot(sub(a,b),sub(c,b));return d>0?'acute':d===0?'right':'obtuse'})};
+// random flip / turn, then place inside a W×H grid
+function place(pts,W,H,x0){const f=ri(0,7);let p=pts.map(([x,y])=>{let X=x,Y=y;if(f&1)X=-X;if(f&2)Y=-Y;if(f&4)[X,Y]=[Y,X];return[X,Y]});
+  const mx=Math.min(...p.map(a=>a[0])),my=Math.min(...p.map(a=>a[1]));p=p.map(([x,y])=>[x-mx,y-my]);const w=Math.max(...p.map(a=>a[0])),h=Math.max(...p.map(a=>a[1]));if(w>W||h>H)return null;
+  const ox=(x0||0)+ri(0,W-w),oy=ri(0,H-h),st=ri(0,p.length-1);p=p.map(([x,y])=>[x+ox,y+oy]);return[...p.slice(st),...p.slice(0,st)]}
+function hull(P){const p=[...new Map(P.map(a=>[a.join(','),a])).values()].sort((a,b)=>a[0]-b[0]||a[1]-b[1]);if(p.length<3)return p;const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);
+  const lo=[],up=[];for(const a of p){while(lo.length>1&&cr(lo[lo.length-2],lo[lo.length-1],a)<=0)lo.pop();lo.push(a)}for(const a of p.slice().reverse()){while(up.length>1&&cr(up[up.length-2],up[up.length-1],a)<=0)up.pop();up.push(a)}return lo.slice(0,-1).concat(up.slice(0,-1))}
+// convex figures: random hull, or a rectangle with some corners cut off, or a trapezium
+function convexPoly(){for(let t=0;t<200;t++){const m=ri(0,2);let p;
+  if(m===0){p=hull(Array.from({length:ri(4,6)},()=>[ri(0,6),ri(0,5)]))}
+  else if(m===1){const W=ri(3,6),H=ri(3,5),C=[[0,0],[W,0],[W,H],[0,H]],cut=C.map(()=>rnd()<.55?[ri(1,2),ri(1,2)]:null);p=[];let bad=false;
+   C.forEach((c,i)=>{const pr=C[(i+3)%4],nx=C[(i+1)%4],k=cut[i];if(!k){p.push(c);return}const u=sub(pr,c),v=sub(nx,c),lu=Math.hypot(...u),lv=Math.hypot(...v);
+    p.push([c[0]+u[0]/lu*k[0],c[1]+u[1]/lu*k[0]],[c[0]+v[0]/lv*k[1],c[1]+v[1]/lv*k[1]]);const kn=cut[(i+1)%4];if(kn&&k[1]+kn[0]>=lv)bad=true});if(bad)continue}
+  else{const W=ri(3,6),H=ri(2,4),a=ri(0,2),b=ri(0,2);if(a+b>=W)continue;p=[[a,0],[W-b,0],[W,H],[0,H]]}
+  p=simp(p);if(p.length<3||p.length>6||sarea(p)===0)continue;if(kinds(p).some(k=>k==='reflex'||k==='straight'))continue;
+  const q=place(p,8,5);if(q)return q}return null}
+// outward direction for a corner label
+const outDir=(p,i,k)=>{const n=p.length,b=p[i],u=sub(p[(i+n-1)%n],b),v=sub(p[(i+1)%n],b),lu=Math.hypot(...u),lv=Math.hypot(...v);let s=[u[0]/lu+v[0]/lv,u[1]/lu+v[1]/lv];const L=Math.hypot(...s)||1;s=[s[0]/L,s[1]/L];return k==='reflex'?s:[-s[0],-s[1]]};
+function polySVG(p,W,H,lab,label){let g=dots(W,H)+`<polygon class="d-e" points="${p.map(a=>GP(a[0])+','+GP(a[1])).join(' ')}" style="stroke-width:3;fill-opacity:.4"/>`;
+  if(lab){const K=kinds(p);p.forEach((a,i)=>{const d=outDir(p,i,K[i]);g+=tx(GP(a[0])+d[0]*17,GP(a[1])+d[1]*17+5,LB[i],'d-sm2')})}
+  return sv(2*GO+W*GC,2*GO+H*GC,g,label||'A figure on a dot grid',W>8?480:440)}
+function polysSVG(ps,W,H){let g=dots(W,H);for(const p of ps)g+=`<polygon class="d-e" points="${p.map(a=>GP(a[0])+','+GP(a[1])).join(' ')}" style="stroke-width:3;fill-opacity:.4"/>`;return sv(2*GO+W*GC,2*GO+H*GC,g,'Figures on a dot grid',480)}
+const KW={acute:'smaller than a right angle',obtuse:'greater than a right angle',right:'a right angle'};
+const RA_TIP=`A right angle is a square corner, like the corner of a page. Use the grid to check each corner.`;
+
+/* concave figures made of squares (for counting corners) */
+const CONC=[[[0,0],[1,0],[1,2],[3,2],[3,3],[0,3]],[[0,0],[3,0],[3,1],[2,1],[2,3],[1,3],[1,1],[0,1]],[[0,0],[1,0],[1,2],[2,2],[2,0],[3,0],[3,3],[0,3]],
+ [[1,0],[2,0],[2,1],[3,1],[3,2],[2,2],[2,3],[1,3],[1,2],[0,2],[0,1],[1,1]],[[0,0],[2,0],[2,1],[3,1],[3,3],[0,3]],[[0,1],[2,1],[2,0],[4,2],[2,4],[2,3],[0,3]],
+ [[0,0],[2,2],[4,0],[4,3],[0,3]],[[0,0],[3,0],[3,3],[2,3],[2,1],[0,1]],[[0,0],[4,0],[4,1],[2,3],[0,1]]];
+
+/* ---------------- marked angles in separate boxes ---------------- */
+const VEC=[[3,0],[0,3],[2,0],[0,2],[2,1],[1,2],[2,2],[1,3],[3,1],[3,2],[2,3],[1,1],[3,3]];
+function oneAngle(kind){for(let t=0;t<400;t++){const s=()=>{const v=pick(VEC);return[v[0]*pick([1,-1]),v[1]*pick([1,-1])]};const a=s(),b=s();if(cross(a,b)===0)continue;
+  const d=dot(a,b),k=d>0?'acute':d===0?'right':'obtuse';if(k!==kind)continue;const ang=Math.acos(d/Math.hypot(...a)/Math.hypot(...b))*180/Math.PI;if(ang<28||ang>155)continue;
+  const xs=[0,a[0],b[0]],ys=[0,a[1],b[1]],mx=Math.min(...xs),my=Math.min(...ys);if(Math.max(...xs)-mx>3||Math.max(...ys)-my>3)continue;return{V:[-mx,-my],a,b,k}}return null}
+function markedSVG(A){const c=44,pw=3*c+70,ph=3*c+56;let g='';A.forEach((m,i)=>{const X=(i%2)*pw+35,Y=Math.floor(i/2)*ph+28,P=(x,y)=>[X+x*c,Y+y*c];
+  if(i%2)g+=`<line x1="${pw}" y1="10" x2="${pw}" y2="${2*ph-10}" style="stroke:currentColor;opacity:.2;stroke-width:1.5"/>`;if(i===2)g+=`<line x1="10" y1="${ph}" x2="${2*pw-10}" y2="${ph}" style="stroke:currentColor;opacity:.2;stroke-width:1.5"/>`;
+  for(let y=0;y<=3;y++)for(let x=0;x<=3;x++){const [px,py]=P(x,y);g+=`<circle cx="${px}" cy="${py}" r="2.5" style="fill:currentColor;opacity:.35"/>`}
+  const [vx,vy]=P(...m.V);for(const r of [m.a,m.b]){const [ex,ey]=P(m.V[0]+r[0],m.V[1]+r[1]);g+=`<line class="d-l" x1="${vx}" y1="${vy}" x2="${ex}" y2="${ey}" style="stroke-width:3;stroke-linecap:round"/>`}
+  const ua=[m.a[0]/Math.hypot(...m.a),m.a[1]/Math.hypot(...m.a)],ub=[m.b[0]/Math.hypot(...m.b),m.b[1]/Math.hypot(...m.b)],R=20,sw=cross(m.a,m.b)>0?1:0;
+  g+=`<path class="d-pl" d="M ${rr(vx+ua[0]*R)} ${rr(vy+ua[1]*R)} A ${R} ${R} 0 0 ${sw} ${rr(vx+ub[0]*R)} ${rr(vy+ub[1]*R)}" style="stroke-width:2.5"/>`;
+  let bs=[ua[0]+ub[0],ua[1]+ub[1]];const L=Math.hypot(...bs);bs=[bs[0]/L,bs[1]/L];g+=tx(vx+bs[0]*36,vy+bs[1]*36+6,'<tspan font-style="italic">'+'abcd'[i]+'</tspan>','d-t');
+  g+=`<circle class="d-dot" cx="${vx}" cy="${vy}" r="4"/>`});
+  return sv(2*pw,2*ph,g,'Four marked angles a, b, c and d',400)}
+/* ---------------- letters drawn with straight strokes ---------------- */
+const LT={E:[[0,0,0,6],[0,0,4,0],[0,3,3,3],[0,6,4,6]],F:[[0,0,0,6],[0,0,4,0],[0,3,3,3]],H:[[0,0,0,6],[4,0,4,6],[0,3,4,3]],I:[[2,0,2,6],[0,0,4,0],[0,6,4,6]],
+ L:[[0,0,0,6],[0,6,4,6]],T:[[0,0,4,0],[2,0,2,6]],U:[[0,0,0,6],[0,6,4,6],[4,6,4,0]],N:[[0,6,0,0],[0,0,4,6],[4,6,4,0]],Z:[[0,0,4,0],[4,0,0,6],[0,6,4,6]],
+ V:[[0,0,2,6],[2,6,4,0]],A:[[0,6,2,0],[2,0,4,6],[1,3,3,3]],K:[[0,0,0,6],[0,3,4,0],[0,3,4,6]],Y:[[0,0,2,3],[4,0,2,3],[2,3,2,6]],X:[[0,0,4,6],[4,0,0,6]]};
+const LTR={E:4,F:3,H:4,I:4,L:1,T:2,U:2,N:0,Z:0,V:0,A:0,K:0,Y:0,X:0};
+function letSVG(ks){const sc=10,bw=86,o=16;let g='';ks.forEach((k,i)=>{const x0=o+i*bw+15,y0=o;g+=`<g class="lt">`+LT[k].map(s=>`<line class="d-l" x1="${x0+s[0]*sc}" y1="${y0+s[1]*sc}" x2="${x0+s[2]*sc}" y2="${y0+s[3]*sc}" style="stroke-width:5;stroke-linecap:round"/>`).join('')+`</g>`});
+  return sv(2*o+ks.length*bw,2*o+60,g,'Capital letters drawn with straight lines',420)}
+
+/* ---------------- crossing lines ---------------- */
+const DIRS=[[1,0],[0,1],[1,1],[1,-1],[2,1],[1,2],[2,-1],[1,-2]];
+function crossFig(){for(let t=0;t<3000;t++){const n=ri(3,4),L=[];
+  const C=[ri(1,7),ri(1,4)],d1=pick(DIRS),d2=pick([[-d1[1],d1[0]],[d1[1],-d1[0]]]),big=d=>Math.max(Math.abs(d[0]),Math.abs(d[1]))>1;
+  for(const d of [d1,d2]){const a=big(d)?1:ri(1,3),b=big(d)?ri(1,2):ri(1,3),s=[C[0]-d[0]*a,C[1]-d[1]*a],e=[C[0]+d[0]*b,C[1]+d[1]*b];if(a+b<2&&!big(d))break;L.push({s,e,d})}
+  for(let i=2;i<n;i++){const d=pick(DIRS),k=big(d)?ri(2,3):ri(4,6),s=[ri(0,8),ri(0,5)],e=[s[0]+d[0]*k,s[1]+d[1]*k];L.push({s,e,d})}
+  if(L.length<n||L.some(l=>[l.s,l.e].some(q=>q[0]<0||q[0]>8||q[1]<0||q[1]>5)))continue;let ok=true;const X=[],perp=[],other=[];
+  for(let i=0;i<n&&ok;i++)for(let j=i+1;j<n&&ok;j++){const A=L[i],B=L[j],r=sub(A.e,A.s),q=sub(B.e,B.s),den=cross(r,q),w=sub(B.s,A.s);
+   if(den===0){if(cross(w,r)===0)ok=false;continue}const ta=cross(w,q)/den,tb=cross(w,r)/den;
+   if(ta>=-0.25&&ta<=1.25&&tb>=-0.25&&tb<=1.25&&!(ta>.18&&ta<.82&&tb>.18&&tb<.82)){ok=false;break}
+   if(ta>.18&&ta<.82&&tb>.18&&tb<.82){const P=[A.s[0]+r[0]*ta,A.s[1]+r[1]*ta];if(X.some(x=>Math.hypot(x[0]-P[0],x[1]-P[1])<0.6)){ok=false;break}X.push(P);(dot(r,q)===0?perp:other).push([i,j])}}
+  if(!ok||!perp.length||!other.length||perp.length>3)continue;if(rnd()<.6&&!perp.some(([i,j])=>L[i].d[0]*L[i].d[1]!==0))continue;return{L,perp,other}}return null}
+function crossSVG(L){let g=dots(8,5);L.forEach((l,i)=>{g+=`<line class="d-l" x1="${GP(l.s[0])}" y1="${GP(l.s[1])}" x2="${GP(l.e[0])}" y2="${GP(l.e[1])}" style="stroke-width:3"/>`;
+  const r=sub(l.e,l.s),Lr=Math.hypot(...r),u=[r[0]/Lr,r[1]/Lr];g+=tx(GP(l.s[0])-u[0]*15,GP(l.s[1])-u[1]*15+5,LB[2*i],'d-sm2')+tx(GP(l.e[0])+u[0]*15,GP(l.e[1])+u[1]*15+5,LB[2*i+1],'d-sm2')});
+  return sv(2*GO+8*GC,2*GO+5*GC,g,'Straight lines crossing on a dot grid',440)}
+const goes=([dx,dy])=>{const g=gcd(Math.abs(dx),Math.abs(dy));dx/=g;dy/=g;return `${Math.abs(dx)} ${dx>0?'right':'left'} and ${Math.abs(dy)} ${dy>0?'down':'up'}`};
+const why=(a,da,b,db)=>Math.abs(da[0])===Math.abs(da[1])&&da[0]?`${a} goes ${goes(da)}, ${b} goes ${goes(db)} (at a time). They slant opposite ways across the grid squares, so they meet at right angles.`:da[0]*da[1]===0?`${a} goes straight ${da[0]?'across':'up and down'} and ${b} goes straight ${db[0]?'across':'up and down'}, so they meet at right angles.`
+ :`Use the grid: ${a} goes ${goes(da)}, ${b} goes ${goes(db)} (at a time). The two numbers swap places — that is what happens when a line is turned through a right angle.`;
+
+/* ================= P3 angles ================= */
+addVariants('p3_angles',[
+ // right angles inside a figure
+ G(()=>{const p=convexPoly();if(!p)return null;const K=kinds(p),r=p.map((_,i)=>K[i]==='right'?LB[i]:null).filter(Boolean);if(!r.length||r.length===p.length)return null;
+  return{q:`How many <b>right angles</b> are there inside the figure?`,svg:polySVG(p,8,5,true),ans:r.length,unit:'right angles',
+   steps:[RA_TIP,`Square corners at: ${r.join(', ')}.`,`That is ${plu(r.length,'right angle')}.`],vk:'p3_angles:polyright'}}),
+ // angles smaller / greater than a right angle, or all the angles of two figures
+ G(()=>{const t=ri(0,4);
+  if(t===4){let a=null,b=null;for(let k=0;k<50&&!a;k++)a=place(rnd()<.6?pick(CONC):convexPoly0(),4,5,0);for(let k=0;k<50&&!b;k++)b=place(rnd()<.6?pick(CONC):convexPoly0(),4,5,6);if(!a||!b)return null;a=simp(a);b=simp(b);
+   return{q:`How many angles are there altogether inside these two figures?`,svg:polysSVG([a,b],10,5),ans:a.length+b.length,unit:'angles',
+    steps:[`Every corner of a figure makes one angle inside it, even a corner that points in.`,`Left figure: ${a.length} corners. Right figure: ${b.length} corners.`,`${a.length} + ${b.length} = ${a.length+b.length} angles`],vk:'p3_angles:polysize'}}
+  const p=convexPoly();if(!p)return null;const K=kinds(p),kind=t<2?'acute':'obtuse',hit=p.map((_,i)=>K[i]===kind?LB[i]:null).filter(Boolean);if(!hit.length||hit.length===p.length&&rnd()<.7)return null;
+  const rs=p.map((_,i)=>K[i]==='right'?LB[i]:null).filter(Boolean);
+  return{q:`How many angles inside the figure are <b>${KW[kind]}</b>?`,svg:polySVG(p,8,5,true),ans:hit.length,unit:'angles',
+   steps:[`Compare each corner with a right angle (a square corner). ${kind==='acute'?'A smaller angle is sharper.':'A greater angle is more open.'}`,...(rs.length?[`Right angles (not counted): ${rs.join(', ')}.`]:[]),`${cap(KW[kind])}: ${hit.join(', ')}.`,`That is ${plu(hit.length,'angle')}.`],vk:'p3_angles:polysize'}}),
+ // four marked angles
+ G(()=>{const want=rnd()<.4?'right':pick(['acute','obtuse']);const ks=[0,1,2,3].map(()=>pick(['acute','right','obtuse']));const n=ks.filter(k=>k===want).length;if(n<1||n>3)return null;
+  const A=ks.map(oneAngle);if(A.some(a=>!a))return null;const hit=A.map((a,i)=>a.k===want?'abcd'[i]:null).filter(Boolean);
+  const ask=want==='right'?'right angles':want==='acute'?'smaller than a right angle':'greater than a right angle';
+  return{q:`Look at the marked angles <i>a</i>, <i>b</i>, <i>c</i> and <i>d</i>. How many of them ${want==='right'?'are <b>right angles</b>':`are <b>${ask}</b>`}?`,svg:markedSVG(A),ans:hit.length,unit:'angles',
+   steps:[`A right angle is a square corner. On the dots, a right angle that is turned has arms like "2 across, 1 down" and "1 across, 2 up".`,`${want==='right'?'Right angles':cap(ask)}: ${hit.join(', ')}.`,`That is ${plu(hit.length,'angle')}.`],vk:'p3_angles:marked'}}),
+ // right angles in letters
+ G(()=>{const yes=Object.keys(LTR).filter(k=>LTR[k]),no=Object.keys(LTR).filter(k=>!LTR[k]),ny=ri(2,3),ks=shuffle([...shuffle(yes).slice(0,ny),...shuffle(no).slice(0,4-ny)]),tot=ks.reduce((a,k)=>a+LTR[k],0);
+  return{q:`How many <b>right angles</b> are there altogether in these letters?`,svg:letSVG(ks),ans:tot,unit:'right angles',
+   steps:[`Where one line meets the middle of another (like in T), there are 2 right angles. A corner (like in L) makes 1.`,ks.map(k=>`${k}: ${LTR[k]}`).join(', '),`${ks.map(k=>LTR[k]).join(' + ')} = ${tot} right angles`],vk:'p3_angles:letters'}}),
+],[
+ // right angles where lines cross
+ G(()=>{const F=crossFig();if(!F)return null;const nm=i=>LB[2*i]+LB[2*i+1],ans=4*F.perp.length;
+  const ex=F.perp.find(([i,j])=>F.L[i].d[0]*F.L[i].d[1]!==0)||F.perp[0];
+  return{q:`The straight lines cross each other as shown. How many <b>right angles</b> are formed where the lines cross?`,svg:crossSVG(F.L),ans,unit:'right angles',
+   steps:[`Two lines that cross at a right angle make 4 right angles around the crossing point. Other crossings make none.`,why(nm(ex[0]),F.L[ex[0]].d,nm(ex[1]),F.L[ex[1]].d),`Crossing at right angles: ${F.perp.map(([i,j])=>nm(i)+' and '+nm(j)).join('; ')}.`,`${F.perp.length} × 4 = ${ans} right angles`],vk:'p3_angles:crossing'}}),
+ // rectangle + triangle
+ G(()=>{const W=ri(2,4),H=ri(2,4),e1=ri(0,1),e2=ri(0,1),d=ri(1,3),y1=-e1,y2=H+e2,ya=ri(y1,y2);
+  let p=[[0,0],[W,0]];if(e1)p.push([W,y1]);p.push([W+d,ya]);if(e2)p.push([W,y2]);p.push([W,H],[0,H]);p=simp(p);const K=kinds(p);if(K.includes('straight'))return null;p=place(p,8,5);if(!p)return null;
+  const K2=kinds(p),askR=rnd()<.4,kind=askR?'right':'acute',hit=p.map((_,i)=>K2[i]===kind?LB[i]:null).filter(Boolean);if(!hit.length)return null;const rf=p.map((_,i)=>K2[i]==='reflex'?LB[i]:null).filter(Boolean);
+  return{q:`The figure is made up of a rectangle and a triangle. How many angles inside the figure are <b>${askR?'right angles':'smaller than a right angle'}</b>?`,svg:polySVG(p,8,5,true),ans:hit.length,unit:'angles',
+   steps:[`Check every corner of the outline against a square corner, using the grid.`,...(rf.length?[`At ${rf.join(' and ')} the corner points in, so the angle inside is much greater than a right angle.`]:[]),`${askR?'Right angles':'Smaller than a right angle'}: ${hit.join(', ')}.`,`That is ${plu(hit.length,'angle')}.`],vk:'p3_angles:composite'}}),
+ // tilted right angles vs near misses
+ G(()=>{const a=ri(1,3),b=ri(1,3),k=ri(1,2),V=[ri(0,8),ri(0,5)],P1=[V[0]+a,V[1]+b],P2=[V[0]-b*k,V[1]+a*k],P3=[ri(0,8),ri(0,5)];if(rnd()<.5&&a===b)return null;
+  const raw=[V,P1,P2,P3];if(raw.some(q=>q[0]<0||q[0]>8||q[1]<0||q[1]>5))return null;let p=hull(raw);if(p.length<4)return null;p=simp(p);const K=kinds(p);if(K.some(x=>x==='straight'||x==='reflex'))return null;
+  const n=p.length,ang=p.map((v,i)=>{const u=sub(p[(i+n-1)%n],v),w=sub(p[(i+1)%n],v);return Math.acos(dot(u,w)/Math.hypot(...u)/Math.hypot(...w))*180/Math.PI});
+  const tilt=p.some((v,i)=>K[i]==='right'&&sub(p[(i+1)%n],v)[0]*sub(p[(i+1)%n],v)[1]!==0),near=ang.some((x,i)=>K[i]!=='right'&&x>74&&x<106);if(!tilt||!near)return null;
+  const r=p.map((_,i)=>K[i]==='right'?LB[i]:null).filter(Boolean),nr=p.map((_,i)=>K[i]!=='right'&&ang[i]>74&&ang[i]<106?LB[i]:null).filter(Boolean);
+  const i0=p.findIndex((v,i)=>K[i]==='right'&&sub(p[(i+1)%n],v)[0]*sub(p[(i+1)%n],v)[1]!==0),v0=p[i0],u0=sub(p[(i0+n-1)%n],v0),w0=sub(p[(i0+1)%n],v0);
+  return{q:`Some angles in this figure look close to a right angle. Use the dot grid to decide. How many angles inside the figure are <b>exactly right angles</b>?`,svg:polySVG(p,8,5,true),ans:r.length,unit:'right angles',
+   steps:[why(`At ${LB[i0]}, one arm`,u0,'the other',w0).replace('Use the grid: ',''),`${listAnd(nr)} ${nr.length>1?'look':'looks'} close, but the arms do not swap like this, so ${nr.length>1?'they are not right angles':'it is not a right angle'}.`,`Right angles: ${r.join(', ')}.`,`That is ${plu(r.length,'right angle')}.`],vk:'p3_angles:tilted'}}),
+]);
+function convexPoly0(){for(let t=0;t<100;t++){let p=hull(Array.from({length:ri(3,5)},()=>[ri(0,4),ri(0,4)]));if(p.length<3)continue;p=simp(p);if(p.length>=3&&!kinds(p).includes('straight'))return p}return[[0,0],[3,0],[0,3]]}
+
+/* ================= P3 numbers ================= */
+const ONE=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'],TEN=['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+const w2=n=>n<20?ONE[n]:TEN[Math.floor(n/10)]+(n%10?'-'+ONE[n%10]:'');
+const w3=n=>{const h=Math.floor(n/100),r=n%100;return h?ONE[h]+' hundred'+(r?' and '+w2(r):''):w2(r)};
+const words=n=>{const t=Math.floor(n/1000),r=n%1000;if(!t)return w3(r);const s=ONE[t]+' thousand';return !r?s:r<100?s+' and '+w2(r):s+', '+w3(r)};
+const QW=n=>`<i>“${words(n)}”</i>`;
+const zeroy=()=>{const th=ri(1,9),h=rnd()<.45?0:ri(1,9),t=rnd()<.4?0:ri(1,9),o=rnd()<.25?0:ri(1,9);return th*1000+h*100+t*10+o};
+const PLN=['thousands','hundreds','tens','ones'];
+const ORD=['first','second','third','fourth'];
+addVariants('p3_numbers',[
+ // words -> numerals, or value of a digit in a number given in words
+ G(()=>{const n=zeroy(),s=String(n);
+  if(rnd()<.55){const th=Math.floor(n/1000),h=Math.floor(n/100)%10,r=n%100;
+   return{q:`<i>“${cap(words(n))}”</i> is written in numerals as ☐. What is the number in the box?`,ans:n,
+    steps:[`${cap(words(th*1000))} → ${th} in the thousands place. ${h?`${cap(w3(h*100))} → ${h}`:'No hundreds → 0'} in the hundreds place.`,r?`${cap(w2(r))} → ${Math.floor(r/10)} tens and ${r%10} ones.`:`No tens and no ones → 0 and 0.`,`So the number is ${n}.`],vk:'p3_numbers:words'}}
+  const i=ri(0,2),d=+s[i];if(!d||s.split('').filter(c=>c===s[i]).length>1)return null;const pv=[1000,100,10][i];
+  return{q:`In the number ${QW(n)}, what is the value of the digit ${N(d)}?`,ans:d*pv,steps:[`In numerals, the number is ${n}.`,`The digit ${d} is in the ${PLN[i]} place.`,`Its value is ${d} × ${pv} = ${d*pv}.`],vk:'p3_numbers:words'}}),
+ // order four numbers
+ G(()=>{const dg=shuffle([0,1,2,3,4,5,6,7,8,9]).slice(0,4);const ps=shuffle(perms4(dg)).filter(x=>x>=1000);const lead=rnd()<.6;let L;
+  if(lead){const th=pick(ps.map(x=>Math.floor(x/1000)));L=ps.filter(x=>Math.floor(x/1000)===th).slice(0,4)}else L=ps.slice(0,4);if(L.length<4)return null;
+  const up=rnd()<.5,k=ri(1,2),S=[...L].sort((a,b)=>up?a-b:b-a);
+  return{q:`Arrange these numbers from the <b>${up?'smallest to the greatest':'greatest to the smallest'}</b>. Which number is <b>${ORD[k]}</b>?`+EQ(L.join(', &nbsp;')),ans:S[k],
+   steps:[`Compare the thousands digits first. If they are the same, compare the hundreds, then the tens, then the ones.`,`${up?'Smallest to greatest':'Greatest to smallest'}: ${S.join(', ')}`,`The ${ORD[k]} number is ${S[k]}.`],inQ:1,vk:'p3_numbers:order'}}),
+],[
+ // difference / sum of two numbers in words
+ G(()=>{const a=zeroy(),b=zeroy();if(a===b)return null;const add=rnd()<.4;if(add&&a+b>9999)return null;const [x,y]=a>b?[a,b]:[b,a],ans=add?a+b:x-y;if(!add&&String(x)[0]!==String(y)[0]&&rnd()<.6)return null;
+  return{q:add?`Find the sum of ${QW(a)} and ${QW(b)}.`:`What is the difference between ${QW(a)} and ${QW(b)}?`,ans,
+   steps:[`Write the numbers in numerals: ${a} and ${b}.`,add?`${a} + ${b} = ${ans}`:`Greater − smaller: ${x} − ${y} = ${ans}`],vk:'p3_numbers:wordcalc'}}),
+ // how many odd / even numbers between two numbers
+ G(()=>{const a=ri(1000,9900),b=a+ri(9,40);if(b>9999)return null;const odd=rnd()<.5,par=odd?1:0;let f=a+1;while(f%2!==par)f++;let l=b-1;while(l%2!==par)l--;if(l<f)return null;const n=(l-f)/2+1;
+  return{q:`How many <b>${odd?'odd':'even'}</b> numbers are there between ${N(a)} and ${N(b)}?`,ans:n,unit:'numbers',
+   steps:[`"Between" means ${a} and ${b} themselves are not counted.`,`First ${odd?'odd':'even'} number: ${f}. Last ${odd?'odd':'even'} number: ${l}.`,`From ${f} to ${l} in jumps of 2: ${l} − ${f} = ${l-f}, ${l-f} ÷ 2 = ${(l-f)/2} jumps.`,`${(l-f)/2} jumps means ${(l-f)/2} + 1 = ${n} numbers.`],vk:'p3_numbers:between'}}),
+]);
+
+/* ================= P3 fractions ================= */
+const NM=()=>pick(NAMES);
+function partsSVG(n,k,sh){const S=110,o=12;let polys=[];
+  const MD=shuffle(k===2?['v','h','d1','d2']:['v4','h4','g','x']);
+  for(let i=0;i<n;i++){const x=o+i*S,y=o,m=MD[i];let P=[];
+   const R=(a,b,w,h)=>[[a,b],[a+w,b],[a+w,b+h],[a,b+h]];
+   if(m==='v')P=[R(x,y,S/2,S),R(x+S/2,y,S/2,S)];if(m==='h')P=[R(x,y,S,S/2),R(x,y+S/2,S,S/2)];
+   if(m==='d1')P=[[[x,y],[x+S,y],[x+S,y+S]],[[x,y],[x+S,y+S],[x,y+S]]];if(m==='d2')P=[[[x,y],[x+S,y],[x,y+S]],[[x+S,y],[x+S,y+S],[x,y+S]]];
+   if(m==='v4')P=[0,1,2,3].map(j=>R(x+j*S/4,y,S/4,S));if(m==='h4')P=[0,1,2,3].map(j=>R(x,y+j*S/4,S,S/4));
+   if(m==='g')P=[R(x,y,S/2,S/2),R(x+S/2,y,S/2,S/2),R(x,y+S/2,S/2,S/2),R(x+S/2,y+S/2,S/2,S/2)];
+   if(m==='x'){const c=[x+S/2,y+S/2];P=[[[x,y],[x+S,y],c],[[x+S,y],[x+S,y+S],c],[[x+S,y+S],[x,y+S],c],[[x,y+S],[x,y],c]]}
+   polys.push(...P)}
+  const idx=new Set(shuffle(polys.map((_,i)=>i)).slice(0,sh));
+  const g=polys.map((P,i)=>`<polygon class="${idx.has(i)?'d-a':'d-e'}" points="${P.map(p=>p.join(',')).join(' ')}" style="stroke-width:2"/>`).join('');
+  return sv(2*o+n*S,2*o+S,g,'A figure cut into equal parts, some shaded',Math.min(400,2*o+n*S))}
+const sameDen=(arr,L)=>arr.map(([a,b])=>b===L?`${a}/${b}`:`${a}/${b} = ${a*L/b}/${L}`).join(', ');
+// pick c distinct proper simplest fractions with denominators from fam
+function fracSet(c,fam){const s=[],seen=new Set();for(let t=0;t<200&&s.length<c;t++){const b=pick(fam),a=ri(1,b-1);if(gcd(a,b)!==1)continue;const v=a/b;if([...seen].some(x=>Math.abs(x-v)<1e-9))continue;seen.add(v);s.push([a,b])}return s.length===c?s:null}
+const FAM=[[2,4,8],[3,6,12],[2,4,12],[2,3,6],[2,5,10],[4,8],[2,6,12],[3,6],[2,3,12],[4,12]];
+addVariants('p3_frac',[
+ // greatest / smallest of three fractions
+ G(()=>{const t=ri(0,2),big=rnd()<.5;let F;
+  if(t===0){const a=ri(1,5),ds=shuffle([2,3,4,5,6,7,8,9,10,11,12].filter(d=>d>a&&gcd(a,d)===1)).slice(0,3);if(ds.length<3)return null;F=ds.map(d=>[a,d])}
+  else if(t===1){const d=ri(5,12),ns=shuffle(Array.from({length:d-1},(_,i)=>i+1).filter(n=>gcd(n,d)===1)).slice(0,3);if(ns.length<3)return null;F=ns.map(n=>[n,d])}
+  else{const fam=pick(FAM);F=fracSet(3,fam);if(!F||new Set(F.map(f=>f[1])).size<2)return null}
+  const A=F.reduce((m,f)=>(big?f[0]/f[1]>m[0]/m[1]:f[0]/f[1]<m[0]/m[1])?f:m),L=F.reduce((l,f)=>lcm(l,f[1]),1),w=big?'greatest':'smallest';
+  const st=t===0?[`All the numerators are ${F[0][0]}. The more equal parts a whole is cut into, the smaller each part is.`,`So the fraction with the ${big?'smallest':'greatest'} denominator is the ${w}: ${A[0]}/${A[1]}`]
+   :t===1?[`All the denominators are ${A[1]}, so compare the numerators.`,`The ${w} numerator gives the ${w} fraction: ${A[0]}/${A[1]}`]
+   :[`Change them to ${L}ths: ${sameDen(F,L)}`,A[1]===L?`The ${w} is ${A[0]}/${A[1]}`:`The ${w} is ${A[0]*L/A[1]}/${L}, which is ${A[0]}/${A[1]}`];
+  return{q:`Which fraction is the <b>${w}</b>?`+EQ(F.map(f=>f.join('/')).join(', &nbsp;')),...FQ(A[0],A[1]),steps:st,vk:'p3_frac:order'}}),
+ // fraction NOT shaded, parts look different but are equal
+ G(()=>{const n=pick([2,2,3]),k=pick([2,4]),d=n*k;if(d>12)return null;const sh=ri(1,d-1),r=d-sh;
+  return{q:`The figure is made of ${n===2?'two':'three'} equal squares. Each square is cut into equal parts in a different way. What fraction of the figure is <b>NOT</b> shaded? Give your answer in simplest form.`,svg:partsSVG(n,k,sh),...FQ(r,d),
+   steps:[`Each square is cut into ${k} equal parts, so there are ${n} × ${k} = ${d} equal parts.`,`${sh} parts are shaded, so ${d} − ${sh} = ${r} parts are not shaded: ${r}/${d}`,...(gcd(r,d)>1?[`Simplest form: ${fs(r,d)}`]:[`${r}/${d} is already in simplest form.`])],vk:'p3_frac:notshaded'}}),
+],[
+ // how much more (related denominators, same whole)
+ G(()=>{const fam=pick(FAM.filter(f=>f.length>2||rnd()<.5));const F=fracSet(2,fam);if(!F||F[0][1]===F[1][1])return null;const [A,B]=two2(),[x,y]=F[0][0]/F[0][1]>F[1][0]/F[1][1]?[F[1],F[0]]:F;
+  const L=lcm(x[1],y[1]),df=y[0]*L/y[1]-x[0]*L/x[1],ctx=ri(0,2),thing=['pie','cake','pizza'][ctx];
+  return{q:`${A} ate ${N(x.join('/'))} of a ${thing}. ${B} ate ${N(y.join('/'))} of the same ${thing}. How much more of the ${thing} did ${B} eat than ${A}? Give your answer in simplest form.`,...FQ(df,L),
+   steps:[`Make the denominators the same (${L}ths): ${sameDen([x,y],L)}`,`${y[0]*L/y[1]}/${L} − ${x[0]*L/x[1]}/${L} = ${df}/${L}`,...(gcd(df,L)>1?[`Simplest form: ${fs(df,L)}`]:[`${df}/${L} is already in simplest form.`])],vk:'p3_frac:more'}}),
+ // order four fractions, greatest − smallest
+ G(()=>{const fam=pick(FAM.filter(f=>f.length===3));const F=fracSet(4,fam);if(!F||new Set(F.map(f=>f[1])).size<2)return null;const L=F.reduce((l,f)=>lcm(l,f[1]),1);
+  const S=[...F].sort((a,b)=>a[0]/a[1]-b[0]/b[1]),lo=S[0],hi=S[3],df=hi[0]*L/hi[1]-lo[0]*L/lo[1];
+  return{q:`Arrange the fractions from the smallest to the greatest. Then find the difference between the greatest and the smallest fraction. Give your answer in simplest form.`+EQ(F.map(f=>f.join('/')).join(', &nbsp;')),...FQ(df,L),
+   steps:[`Change them to ${L}ths: ${sameDen(F,L)}`,`Smallest to greatest: ${S.map(f=>f.join('/')).join(', ')}`,`${hi[0]*L/hi[1]}/${L} − ${lo[0]*L/lo[1]}/${L} = ${df}/${L}${gcd(df,L)>1?` = ${fs(df,L)}`:''}`],vk:'p3_frac:range'}}),
+]);
+function two2(){const a=NM();let b;do{b=NM()}while(b===a);return[a,b]}
+})();
+
+/* ===== P3 Add and subtract within 10 000 (column methods, word problems, missing digits) ===== */
+(()=>{
+const NB=' ',SY=['☐','△','○'],PV=['Ones','Tens','Hundreds','Thousands'];
+const fill=(n,len)=>Array(len).fill(n);
+const dg=n=>String(n).split('');
+const D=(n,i)=>Math.floor(n/10**i)%10;
+/* column layout: rows of cells (right-aligned), op sign on the second-last row, rule above the last row.
+   Built from spans with table display (the question sits inside a <p>, which cannot hold a real <table>). */
+const CELL='display:table-cell;padding:0 4px;text-align:center;width:.9em';
+function COL(rows,op,lab){const w=Math.max(...rows.map(r=>r.length));
+  return `<span class="colsum" role="img" aria-label="${lab}" style="display:table">`+rows.map((r,i)=>{const last=i===rows.length-1,st=CELL+(last?';border-top:3px solid currentColor':'');
+    return `<span data-r style="display:table-row">${[i===rows.length-2?op:'',...fill('',w-r.length),...r].map((c,j)=>`<span data-c style="${j===0?CELL+';padding-right:12px':st}">${c}</span>`).join('')}</span>`}).join('')+`</span>`}
+const carries=(a,b)=>{let c=0,n=0;for(let i=0;i<4;i++){c=D(a,i)+D(b,i)+c>9?1:0;n+=c}return n};
+const borrows=(a,b)=>{let c=0,n=0;for(let i=0;i<4;i++){c=D(a,i)-c<D(b,i)?1:0;n+=c}return n};
+
+/* ---------- missing-digit puzzles (shared) ---------- */
+// R: 3 rows × 4 columns (left→right), digit chars or null; hid: [[row,col],...] ; returns all solutions
+function solveCols(R,hid,op){const k=hid.length,out=[];
+  for(let x=0;x<10**k;x++){const v=hid.map((_,i)=>Math.floor(x/10**(k-1-i))%10);
+    const G=R.map(r=>[...r]);hid.forEach(([r,c],i)=>G[r][c]=String(v[i]));
+    if(G.some(r=>{const f=r.find(ch=>ch!==null);return f==='0'}))continue;
+    const n=G.map(r=>+r.filter(ch=>ch!==null).join(''));
+    if(op==='+'?n[0]+n[1]===n[2]:n[0]-n[1]===n[2])out.push(v)}
+  return out}
+function digitPuzzle(op){
+  for(;;){let a,b,s;
+    if(op==='+'){a=ri(1000,8999);b=rnd()<.5?ri(1000,9999-a):ri(100,999);s=a+b;if(s>9999||carries(a,b)<2)continue}
+    else{a=ri(2000,9999);b=rnd()<.5?ri(1000,a-100):ri(100,999);s=a-b;if(s<100||borrows(a,b)<2)continue}
+    const R=[a,b,s].map(n=>{const d=dg(n);return [...fill(null,4-d.length),...d]});
+    // carry (add) / regroup (sub) into each column, by place p (0 = ones)
+    const cin=[0],cout=[];for(let p=0;p<4;p++){const t=D(a,p),u=D(b,p),c=cin[p];
+      if(op==='+'){cout[p]=t+u+c>9?1:0}else{cout[p]=t-c<u?1:0}cin[p+1]=cout[p]}
+    const k=ri(2,3);
+    const okCol=c=>{const p=3-c;return !(R[1][c]===null&&cin[p]===0&&cout[p]===0)&&R.filter(r=>r[c]!==null).length>=2};
+    const cand=[0,1,2,3].filter(okCol);if(cand.length<k)continue;
+    const cols=shuffle(cand).slice(0,k).sort((x,y)=>y-x);// right → left
+    const hid=cols.map(c=>[pick([0,1,2].filter(r=>R[r][c]!==null)),c]);
+    const sols=solveCols(R,hid,op);if(sols.length!==1)continue;
+    const sh=shuffle(SY).slice(0,k),G=R.map(r=>r.map(ch=>ch===null?'':ch));hid.forEach(([r,c],i)=>G[r][c]=`<span style="font:400 1em/1 system-ui,sans-serif">${sh[i]}</span>`);
+    const val=hid.map(([r,c])=>+R[r][c]);
+    const lines=hid.map(([r,c],i)=>{const p=3-c,t=D(a,p),u=D(b,p),hasU=R[1][c]!==null,ci=cin[p],co=cout[p];
+      if(op==='+')return `${PV[p]}: ${t}${hasU?' + '+u:''}${ci?' + 1':''} = ${t+u+ci}, so ${sh[i]} = ${val[i]}`;
+      return `${PV[p]}: ${t}${ci?' − 1':''}${co?' + 10':''}${hasU?' − '+u:''} = ${D(s,p)}, so ${sh[i]} = ${val[i]}`});
+    const sum=rnd()<.5,tot=val.reduce((x,y)=>x+y,0),last=sh[k-1];
+    const lab=op==='+'?'Column addition':'Column subtraction';
+    const q=sum?`Each shape stands for one missing digit. What is ${sh.join(' + ')}?`:`Each shape stands for one missing digit. What digit does ${last} stand for?`;
+    const steps=sum?[...lines,`${sh.join(' + ')} = ${val.join(' + ')} = ${tot}`]:lines;
+    if(steps.length<2)continue;
+    return{q:q+COL(G,op==='+'?'+':'−',lab),ans:sum?tot:val[k-1],steps,vk:op==='+'?'p3_addsub:digitadd':'p3_addsub:digitsub'}}}
+
+/* ---------- bar model for the part-whole question ---------- */
+function pwSVG(n1,n2,big,small,T,d,askBig){const L=96,u=280/big,y1=34,y2=86,h=32,xe=L+big*u;let s='';
+  s+=tx(L-10,y1+22,n1,'d-sm2','end')+tx(L-10,y2+22,n2,'d-sm2','end');
+  s+=`<rect class="d-a" x="${L}" y="${y1}" width="${rr(small*u)}" height="${h}"/><rect class="d-e" x="${rr(L+small*u)}" y="${y1}" width="${rr(d*u)}" height="${h}"/>`;
+  s+=`<rect class="d-a" x="${L}" y="${y2}" width="${rr(small*u)}" height="${h}"/>`;
+  s+=tx(L+small*u+d*u/2,y1-8,d,'d-sm2');
+  s+=tx((askBig?xe:L+small*u)+16,(askBig?y1:y2)+23,'?','d-t');
+  const bx=xe+38;s+=ln(bx-8,y1,bx,y1,'d-l thin')+ln(bx,y1,bx,y2+h,'d-l thin')+ln(bx-8,y2+h,bx,y2+h,'d-l thin')+tx(bx+8,(y1+y2+h)/2+6,T,'d-t','start');
+  return sv(bx+80,y2+h+14,s,'Bar model',520)}
+
+/* ---------- Average ---------- */
+const A=[
+ ()=>{let a,b,s;do{a=ri(1000,8999);b=rnd()<.5?ri(1000,9999-a):ri(100,999);s=a+b}while(s>9999||carries(a,b)<2);
+  const o=D(a,0)+D(b,0),c1=o>9?1:0,t=D(a,1)+D(b,1)+c1,c2=t>9?1:0,hh=D(a,2)+D(b,2)+c2,c3=hh>9?1:0,th=D(a,3)+D(b,3)+c3;
+  return{q:`Add.`+COL([dg(a),dg(b),fill(NB,String(s).length)],'+','Column addition'),ans:s,
+   steps:[`Ones: ${D(a,0)} + ${D(b,0)} = ${o}${c1?', so carry one ten':''}`,`Tens: ${D(a,1)} + ${D(b,1)}${c1?' + 1':''} = ${t}${c2?', so carry one hundred':''}`,`Hundreds: ${D(a,2)} + ${D(b,2)}${c2?' + 1':''} = ${hh}${c3?', so carry one thousand':''}`,b>999||c3?`Thousands: ${D(a,3)}${b>999?' + '+D(b,3):''}${c3?' + 1':''} = ${th}, so ${a} + ${b} = ${s}`:`Thousands: bring down ${D(a,3)}, so ${a} + ${b} = ${s}`],vk:'p3_addsub:coladd'}},
+ ()=>{let a,b,x;for(;;){const d=ri(2,9);x=rnd()<.5?0:ri(1,8);a=d*1000+x;b=rnd()<.6?ri(1000,(d-1)*1000+999):ri(101,999);if(D(b,0)>x&&D(b,1)>0&&D(b,2)>0&&D(b,3)<=d-1&&a-b>=100)break}
+  const d=D(a,3),r=a-b;
+  return{q:`Subtract.`+COL([dg(a),dg(b),fill(NB,String(r).length)],'−','Column subtraction'),ans:r,
+   steps:[`No tens or hundreds to take from, so regroup: ${a} = ${d-1} thousand${d-1===1?'':'s'} 9 hundreds 9 tens ${10+x} ones`,`Ones: ${10+x} − ${D(b,0)} = ${10+x-D(b,0)}`,`Tens: 9 − ${D(b,1)} = ${9-D(b,1)}. Hundreds: 9 − ${D(b,2)} = ${9-D(b,2)}`,`Thousands: ${d-1} − ${D(b,3)} = ${d-1-D(b,3)}, so ${a} − ${b} = ${r}`],vk:'p3_addsub:colsub'}},
+ ()=>{const v=ri(0,3);let a,b,c;
+  if(v===0){do{b=ri(1000,6000);a=ri(1000,9999-b)}while(carries(a,b)<1);c=a+b;return{q:`What is the missing number?`+EQ(`☐ + ${b} = ${c}`),ans:a,steps:[`To find the missing part, subtract: ☐ = ${c} − ${b}`,`${c} − ${b} = ${a}`],vk:'p3_addsub:missing'}}
+  if(v===1){do{a=ri(1000,6000);b=ri(1000,9999-a)}while(carries(a,b)<1);c=a+b;return{q:`What is the missing number?`+EQ(`${a} + ☐ = ${c}`),ans:b,steps:[`To find the missing part, subtract: ☐ = ${c} − ${a}`,`${c} − ${a} = ${b}`],vk:'p3_addsub:missing'}}
+  if(v===2){do{b=ri(1000,5000);c=ri(1000,9999-b)}while(carries(b,c)<1);a=b+c;return{q:`What is the missing number?`+EQ(`☐ − ${b} = ${c}`),ans:a,steps:[`Taking away ${b} left ${c}, so add it back: ☐ = ${c} + ${b}`,`${c} + ${b} = ${a}`],vk:'p3_addsub:missing'}}
+  do{a=ri(3000,9999);c=ri(500,a-500)}while(borrows(a,c)<1);b=a-c;return{q:`What is the missing number?`+EQ(`${a} − ☐ = ${c}`),ans:b,steps:[`The missing number is the part taken away: ☐ = ${a} − ${c}`,`${a} − ${c} = ${b}`],vk:'p3_addsub:missing'}},
+ ()=>{const v=ri(0,5),n=pick(NAMES);let X,Y,Z;
+  const T=[[-1,-1,(X,Y,Z)=>`A bookshop had ${N(X)} books. It sold ${N(Y)} books on Monday and ${N(Z)} books on Tuesday. How many books were left?`,'books'],
+   [-1,-1,(X,Y,Z)=>`A bakery made ${N(X)} buns. It sold ${N(Y)} buns in the morning and ${N(Z)} buns in the afternoon. How many buns were not sold?`,'buns'],
+   [1,-1,(X,Y,Z)=>`A library had ${N(X)} books. It bought ${N(Y)} new books and gave away ${N(Z)} old books. How many books does it have now?`,'books'],
+   [-1,1,(X,Y,Z)=>`${n} had ${N(X)} stamps. ${n} gave ${N(Y)} stamps to a friend and then bought ${N(Z)} more. How many stamps does ${n} have now?`,'stamps'],
+   [-1,1,(X,Y,Z)=>`There were ${N(X)} people at a concert. At the break, ${N(Y)} people left and ${N(Z)} more people came in. How many people were at the concert after the break?`,'people'],
+   [-1,1,(X,Y,Z)=>`A shop had ${N(X)} eggs. It sold ${N(Y)} eggs and then received ${N(Z)} more eggs. How many eggs does the shop have now?`,'eggs']][v];
+  let m;do{X=ri(2000,7000);Y=ri(300,3000);Z=ri(300,3000);m=X+T[0]*Y}while(m<300||m+T[1]*Z<100||m+T[1]*Z>9999||m>9999||new Set([X,Y,Z]).size<3);
+  const F=m+T[1]*Z,w=s=>s>0?'+':'−';
+  return{q:T[2](X,Y,Z),ans:F,unit:T[3],steps:[`First: ${X} ${w(T[0])} ${Y} = ${m}`,`Then: ${m} ${w(T[1])} ${Z} = ${F}`],vk:'p3_addsub:twostep'}},
+ ()=>{const v=ri(0,2);
+  if(v===0){let a,b;do{a=ri(1500,9000);b=ri(1500,9000)}while(Math.abs(a-b)<200||borrows(Math.max(a,b),Math.min(a,b))<1);const more=rnd()<.5,d=Math.abs(a-b);
+   const day=more?(a>b?'Saturday':'Sunday'):(a>b?'Sunday':'Saturday');
+   return{q:`There were ${N(a)} people at a fair on Saturday and ${N(b)} people on Sunday. How many ${more?'more':'fewer'} people were there on ${day}?`,ans:d,unit:'people',steps:[`${a>b?'Saturday':'Sunday'} had more people: ${Math.max(a,b)} is greater than ${Math.min(a,b)}`,`Difference: ${Math.max(a,b)} − ${Math.min(a,b)} = ${d}`],vk:'p3_addsub:compare'}}
+  if(v===1){let a,d;do{a=ri(1200,4999);d=ri(150,a-300)}while(2*a-d>9999);const b=a-d;
+   return{q:`School A has ${N(a)} books in its library. School B has ${N(d)} fewer books than School A. How many books do the two schools have altogether?`,ans:a+b,unit:'books',steps:[`School B: ${a} − ${d} = ${b}`,`Altogether: ${a} + ${b} = ${a+b}`],vk:'p3_addsub:compare'}}
+  const [n1,n2]=twoNames();let a,d;do{a=ri(1000,4000);d=ri(150,2000)}while(2*a+d>9999);const b=a+d;
+  return{q:`${n1} has ${N(a)} stamps. ${n2} has ${N(d)} more stamps than ${n1}. How many stamps do they have altogether?`,ans:a+b,unit:'stamps',steps:[`${n2}: ${a} + ${d} = ${b}`,`Altogether: ${a} + ${b} = ${a+b}`],vk:'p3_addsub:compare'}},
+ ()=>{let a;do{a=ri(1001,9899)}while(a%10===0&&rnd()<.7);const r=10000-a,v=ri(0,2);
+  const q=[`What number must be added to ${N(a)} to make ${N('10 000')}?`,`A school wants to collect ${N('10 000')} cans for recycling. It has collected ${N(a)} cans. How many more cans does it need?`,`A stadium has ${N('10 000')} seats. ${N(a)} seats are filled. How many seats are empty?`][v];
+  const j=[],cur=[a];let x=a;const o=(10-x%10)%10;if(o){j.push(o);x+=o}const t=(100-x%100)%100;if(t){j.push(t);x+=t}const h=(1000-x%1000)%1000;if(h){j.push(h);x+=h}j.push(10000-x);
+  let y=a;const hops=j.map(s=>{y+=s;return `${y}`});
+  return{q,ans:r,unit:['','cans','seats'][v],steps:[`Count on from ${a} in jumps: ${[a,...hops].join(' → ')}`,`Add the jumps: ${j.join(' + ')} = ${r}`],vk:'p3_addsub:to10000'}}
+];
+
+/* ---------- High ability ---------- */
+const MINUS={gave:[(x,it)=>`gave ${N(x)} ${it} to a friend`,'Before giving'],used:[(x,it)=>`used ${N(x)} ${it}`,'Before using'],lost:[(x,it)=>`lost ${N(x)} ${it}`,'Before losing']};
+const PLUS={bought:[(x,it)=>`bought ${N(x)} more ${it}`,'Before buying'],given:[(x,it)=>`was given ${N(x)} more ${it}`,'Before being given']};
+const H=[
+ ()=>digitPuzzle('+'),
+ ()=>digitPuzzle('−'),
+ ()=>{const n=pick(NAMES),it=pick(['stickers','stamps','beads','marbles']);
+  for(;;){const sg=shuffle([1,-1,pick([1,-1])]),mk=shuffle(['gave','used','lost']),pk=shuffle(['bought','given']),ops=sg.map(s=>s<0?MINUS[mk.pop()]:PLUS[pk.pop()]);
+   const xs=sg.map(()=>ri(150,2500)),X=ri(1500,8000);let cur=X,ok=true;const path=[X];for(let i=0;i<3;i++){cur+=sg[i]*xs[i];path.push(cur);if(cur<200||cur>9999)ok=false}
+   if(!ok||new Set([...xs,cur]).size<4)continue;
+   const ph=ops.map((o,i)=>o[0](xs[i],it));
+   const steps=[];for(let i=2;i>=0;i--){const prev=path[i],now=path[i+1],lab=i?ops[i][1]:'At first';steps.push(`${lab}: ${now} ${sg[i]<0?'+':'−'} ${xs[i]} = ${prev}`)}
+   return{q:`${n} had some ${it}. ${n} ${ph[0]}, ${ph[1]}, and then ${ph[2]}. In the end, ${n} had ${N(cur)} ${it}. How many ${it} did ${n} have at first?`,ans:X,unit:it,steps,vk:'p3_addsub:backwards'}}},
+ ()=>{const [n1,n2]=twoNames(),it=pick(['stamps','beads','stickers','marbles']);let B,d;do{B=ri(400,3500);d=ri(150,2500)}while(2*B+d>9999||d<0.18*(B+d)||d>0.75*(B+d));
+  const T=2*B+d,askBig=rnd()<.4,ans=askBig?B+d:B;
+  return{q:`${n1} and ${n2} have ${N(T)} ${it} altogether. ${n1} has ${N(d)} more ${it} than ${n2}. How many ${it} does ${askBig?n1:n2} have?`,svg:pwSVG(n1,n2,B+d,B,T,d,askBig),ans,unit:it,
+   steps:[`Take away the extra part: ${T} − ${d} = ${T-d}`,askBig?`That is 2 equal bars, so ${n2} has ${T-d} ÷ 2 = ${B}`:`That is 2 equal bars: ${T-d} ÷ 2 = ${B}`,...(askBig?[`${n1}: ${B} + ${d} = ${B+d}`]:[])],vk:'p3_addsub:partwhole'}},
+ ()=>{const v=ri(0,2);
+  for(;;){const c=shuffle([0,1,2,3,4,5,6,7,8,9]).slice(0,7);if(v!==1&&!c.includes(0)&&rnd()<.5)continue;
+   const s=[...c].sort((x,y)=>y-x),u=[...c].sort((x,y)=>x-y);let A,B;
+   if(v===0){A=+[s[0],s[1],s[3],s[5]].join('');B=+[s[2],s[4],s[6]].join('')}
+   else if(v===1){A=+s.slice(0,4).join('');const r=s.slice(4).sort((x,y)=>x-y);B=+(r[0]===0?[r[1],r[0],r[2]]:r).join('')}
+   else{const th=u.find(x=>x>0),r=u.filter(x=>x!==th);const ah=r[0],bl=r[1];A=+[th,ah,r[2],r[4]].join('');B=+[bl,r[3],r[5]].join('')}
+   if(A<1000||B<100)continue;const val=v===1?A-B:A+B;if(val>9999)continue;
+   // brute force: confirm this is the best
+   let best=v===2?Infinity:-1;const used=new Array(7).fill(false),p=[];
+   (function rec(){if(p.length===7){if(p[0]===0||p[4]===0)return;const a=+p.slice(0,4).join(''),b=+p.slice(4).join(''),w=v===1?a-b:a+b;best=v===2?Math.min(best,w):Math.max(best,w);return}
+     for(let i=0;i<7;i++)if(!used[i]){used[i]=true;p.push(c[i]);rec();p.pop();used[i]=false}})();
+   if(best!==val)continue;
+   const cards=c.map(x=>N(x)).join(', ');
+   const what=['greatest possible sum','greatest possible difference','smallest possible sum'][v];
+   const why=[`Use the biggest cards for the biggest places: ${s[0]} in the thousands, then ${s[1]} and ${s[2]} in the hundreds`,
+     `Make the 4-digit number as big as possible and the 3-digit number as small as possible`,
+     `Use the smallest cards for the biggest places, but a number cannot start with 0`][v];
+   return{q:`Use all the digit cards ${cards} once each to make a 4-digit number and a 3-digit number. What is the ${what} of the two numbers?`,ans:val,
+    steps:[why,`The numbers are ${A} and ${B}`,`${A} ${v===1?'−':'+'} ${B} = ${val}`],vk:'p3_addsub:cards'}}},
+ ()=>{const n=pick(NAMES),v=ri(0,3);
+  if(v<2){let b,w,x;do{b=ri(400,3500);x=ri(1000,8000);w=v===0?x+b:x-b}while(w>9999||w<100||(v===0?x-b:x+b)<100||(v===0?x-b:x+b)>9999);const ans=v===0?x-b:x+b;
+   return{q:v===0?`${n} added ${N(b)} to a number instead of subtracting it and got ${N(w)}. What is the correct answer?`:`${n} subtracted ${N(b)} from a number instead of adding it and got ${N(w)}. What is the correct answer?`,ans,
+    steps:[`Undo the mistake to find the number: ${w} ${v===0?'−':'+'} ${b} = ${x}`,`Correct answer: ${x} ${v===0?'−':'+'} ${b} = ${ans}`],vk:'p3_addsub:mistake'}}
+  let r,m,x,w,ans;for(;;){const d=shuffle([1,2,3,4,5,6,7,8,9]).slice(0,4);r=+d.join('');m=+[d[0],d[2],d[1],d[3]].join('');x=ri(2000,9999);
+   if(v===2){w=x-m;ans=x-r}else{w=x+m;ans=x+r}if(w>=100&&w<=9999&&ans>=100&&ans<=9999&&r!==m)break}
+  const op=v===2?'subtract':'add',ed=v===2?'subtracted':'added';
+  return{q:`${n} should have ${ed} ${N(r)}, but ${ed} ${N(m)} by mistake and got ${N(w)}. What is the correct answer?`,ans,
+   steps:[`Undo the mistake to find the starting number: ${w} ${v===2?'+':'−'} ${m} = ${x}`,`Correct answer: ${x} ${v===2?'−':'+'} ${r} = ${ans}`],vk:'p3_addsub:mistake'}},
+ ()=>{const v=ri(0,1);
+  if(v===0){let a,d,k,t;do{a=ri(1000,5000);d=ri(10,300);k=pick([10,15,20,25,50,100,111,125]);t=[a];for(let i=0;i<5;i++)t.push(t[i]+d+i*k)}while(t[5]>9999);
+   const df=[0,1,2,3].map(i=>t[i+1]-t[i]);
+   return{q:`What is the next number in the pattern?`+EQ(t.slice(0,5).join(', ')+', ☐'),ans:t[5],
+    steps:[`Differences: ${df.join(', ')}`,`They go up by ${k} each time. Next difference: ${df[3]} + ${k} = ${df[3]+k}`,`${t[4]} + ${df[3]+k} = ${t[5]}`],vk:'p3_addsub:pattern'}}
+  let p,q,a,t,up;do{p=ri(3,30)*50+pick([0,25]);q=ri(2,28)*50+pick([0,25]);a=ri(1000,6000);up=rnd()<.5;t=[a];for(let i=0;i<6;i++)t.push(t[i]+((i%2===0)===up?p:-q))}while(p===q||Math.min(...t)<100||Math.max(...t)>9999);
+  const f=i=>(i%2===0)===up?`+ ${p}`:`− ${q}`;
+  return{q:`What is the next number in the pattern?`+EQ(t.slice(0,5).join(', ')+', ☐'),ans:t[5],
+   steps:[`The pattern goes ${f(0)}, ${f(1)}, ${f(2)}, ${f(3)}, …`,`Next is ${f(4)}: ${t[4]} ${f(4)} = ${t[5]}`],vk:'p3_addsub:pattern'}}
+];
+sk('p3_addsub',3,'Numbers','Add and subtract',hi=>pick(hi?H:A)());
+})();
+
 /* ---------- storage ---------- */
 function load(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}}
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
@@ -6326,7 +6717,7 @@ const _pv9=parentsView;parentsView=function(){_pv9();const seg=app.querySelector
   const cur=D.wstyle||'auto';seg.nextElementSibling.insertAdjacentHTML('afterend',`<div class="seg" role="group" aria-label="Working style">${WSTYLES.map(([k,l])=>`<button data-act="wstyle" data-m="${k}" aria-pressed="${cur===k}">${l}</button>`).join('')}</div><p class="lvlnote"><b>Open working</b>: no step labels. Your child works out the method and types the key numbers. After a wrong answer, or on request, the guided steps appear.</p>`)};
 
 /* ================= ROUND 10: EOY mock exam ================= */
-const MK_CFG=L=>L<=2?{A:8,B:8,C:4,mA:2,mB:2,mC:3}:L<=4?{A:10,B:10,C:5,mA:2,mB:2,mC:4}:{A:10,B:10,C:6,mA:2,mB:2,mC:5};
+const MK_CFG=L=>L===3?{A:10,B:10,C:5,mA:2,mB:2,mC:3}:L<=2?{A:8,B:8,C:4,mA:2,mB:2,mC:3}:L<=4?{A:10,B:10,C:5,mA:2,mB:2,mC:4}:{A:10,B:10,C:6,mA:2,mB:2,mC:5};
 function mkKeys(Q){const items=buildWork(Q).filter(x=>x.val);if(!items.length)return[];const last=items[items.length-1];return(!last.val.time&&Math.abs(last.val.v-Q.ans)<1e-6)?items.slice(0,-1):items}
 function mkFmt(Q,v){if(Q.type==='time')return t12(((v%720)+720)%720);if(Q.type==='time24')return t24(((v%1440)+1440)%1440);if(Q.pre==='$')return '$'+(Number.isInteger(v)?v:v.toFixed(2));return nf(v)}
 function mkMarkKeys(Q){const qn=new Set((plain(Q.q).replace(/(\d),(?=\d{3})/g,'$1').match(/\d+(\.\d+)?/g)||[]).map(Number));let k=mkKeys(Q).filter(x=>x.val.time||(!qn.has(x.val.v)&&Math.abs(x.val.v-Q.ans)>1e-9));if(k.some(x=>!x.val.time&&x.val.v>=10))k=k.filter(x=>x.val.time||x.val.v>=3);return k}
@@ -6416,7 +6807,7 @@ const _pv10=parentsView;parentsView=function(){_pv10();const pn=app.querySelecto
   if(anchor)anchor.insertAdjacentHTML('beforebegin',html);else pn.insertAdjacentHTML('beforeend',html)};
 
 /* ================= ROUND 11: optional timed mock exams (parent opt-in) ================= */
-const mkMins=L=>{const c=MK_CFG(L),m=c.A*c.mA+c.B*c.mB+c.C*c.mC;return Math.round(m*1.5/5)*5};
+const mkMins=L=>{if(L===3)return 90;const c=MK_CFG(L),m=c.A*c.mA+c.B*c.mB+c.C*c.mC;return Math.round(m*1.5/5)*5};
 const mkRem=()=>MK.limit-(MK.used+(MK.t0?Date.now()-MK.t0:0));
 const fmtMS=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return `${Math.floor(s/60)}:${pad(s%60)}`};
 const _mkStart11=mkStart;mkStart=function(){_mkStart11();if(D.mockTimed){MK.timed=true;MK.limit=mkMins(MK.lvl)*60000;MK.used=0;MK.t0=Date.now();mkSave();mkView()}};
@@ -6595,6 +6986,61 @@ const _gA15=gymAct;gymAct=function(a,el){
   if(a==='wcopy'){const t=weekSummary();const done=()=>toast('Weekly summary copied. Paste it into a message.');try{navigator.clipboard.writeText(t).then(done,()=>overlay(`<h2>Weekly summary</h2><textarea class="wsum" rows="6" readonly>${t}</textarea><div class="nav"><button class="btn" data-ov="close">Done</button></div>`))}catch(e){overlay(`<h2>Weekly summary</h2><textarea class="wsum" rows="6" readonly>${t}</textarea><div class="nav"><button class="btn" data-ov="close">Done</button></div>`)}return true}
   if(a==='unprint'&&S.printFrom==='parents'&&S.view==='print'){S.printFrom=null;document.body.classList.remove('printing');parentsView();window.scrollTo(0,0);return true}
   return _gA15(a,el)};
+
+/* ================= ROUND 16 (v25): P3 EOY / AL1 readiness ================= */
+/* P3 mock matches school papers: 50 marks (A 15, B 20, C 5 × 3), 90 minutes when timed */
+/* AL guide (PSLE scale) */
+const alOf=p=>p>=90?1:p>=85?2:p>=80?3:p>=65?4:p>=45?5:p>=25?6:p>=10?7:8;
+const _mkR16=mkResults;mkResults=function(){_mkR16();const box=app.querySelector('.mkscore');if(!box||app.querySelector('.alline')||!MK)return;
+  const tot=mkTot(),got=MK.items.reduce((a,it)=>a+(it.resp?it.resp.got:0),0),pct=Math.round(got/tot*100),need=Math.ceil(tot*.9)-got;
+  box.insertAdjacentHTML('afterend',`<p class="alline"><b>AL${alOf(pct)}</b> on the PSLE scale · ${need<=0?'AL1 zone (90%+) ★':`${need} more mark${need>1?'s':''} for AL1 (90%)`}</p>`)};
+/* readiness card: AL1 check from recent mocks; mock table shows AL */
+const _pv16=parentsView;parentsView=function(){_pv16();const rd=app.querySelector('.eoyrd');const L=S.lvl;
+  if(rd&&!rd.querySelector('.al1')){const mk=(D.mocks||[]).filter(m=>m.lvl===L).slice(0,3),ps=mk.map(m=>Math.round(m.got/m.tot*100)),ok=ps.filter(p=>p>=90).length;
+    rd.querySelector('.lvlnote').insertAdjacentHTML('afterend',`<p class="al1 lvlnote"><b>AL1 check:</b> ${ps.length?`last ${ps.length} P${L} mock${ps.length>1?'s':''}: ${ps.map(p=>p+'%').join(', ')}. ${ok>=2?'On track for AL1 ★':ps.length<2?'Do 2–3 timed mocks to check.':'Aim for 90%+ in 2 of 3 timed mocks.'}`:`AL1 needs 90%+. Do 2–3 <b>timed</b> P${L} mocks (turn on "Timed mock exams" below) and aim for 90%+ in two of them.`}</p>`);
+    if(L>=3&&L<=4&&!rd.querySelector('[data-act="pdraw"]'))rd.querySelector('.pvbtns').insertAdjacentHTML('afterbegin',`<button class="btn ghost small" data-act="pdraw">Print P${L} drawing practice</button>`)}
+  app.querySelectorAll('.mkhist tr').forEach(tr=>{const c=tr.cells;if(c.length===4&&!tr.dataset.al){tr.dataset.al=1;const m=c[3].textContent.match(/(\d+)%/);if(m)tr.insertAdjacentHTML('beforeend',`<td>AL${alOf(+m[1])}</td>`)}})};
+/* drawing practice (paper): parallel / perpendicular lines, rectangles, squares, bar graphs */
+const DG=28;
+function dgGrid(c,r,inner,label){let s='';for(let i=0;i<=c;i++)s+=`<line class="pgl" x1="${10+i*DG}" y1="10" x2="${10+i*DG}" y2="${10+r*DG}"/>`;for(let j=0;j<=r;j++)s+=`<line class="pgl" x1="10" y1="${10+j*DG}" x2="${10+c*DG}" y2="${10+j*DG}"/>`;
+  return `<svg class="dgsvg" viewBox="0 0 ${c*DG+20} ${r*DG+20}" width="${c*DG+20}" role="img" aria-label="${label}">${s}${inner}</svg>`}
+const gx=x=>10+x*DG,gy=y=>10+y*DG;
+const dPt=(x,y,l,dx,dy)=>`<circle class="pdot" cx="${gx(x)}" cy="${gy(y)}" r="4"/><text class="ptxt" x="${gx(x)+(dx==null?7:dx)}" y="${gy(y)+(dy==null?-7:dy)}">${l}</text>`;
+const dLn=(a,b,c,d,cl)=>`<line class="${cl||'pln'}" x1="${gx(a)}" y1="${gy(b)}" x2="${gx(c)}" y2="${gy(d)}"/>`;
+function onLine(px,py,ax,ay,dx,dy){return (px-ax)*dy-(py-ay)*dx===0}
+function drawTask(kind){const C=14,R=9;
+  if(kind==='par'||kind==='perp'){for(let k=0;k<400;k++){const dirs=[[3,0],[0,3],[2,1],[1,2],[2,-1],[1,-2],[3,1],[1,1],[2,2],[3,-1]],[dx,dy]=pick(dirs),ax=ri(1,5),ay=ri(1,R-1),bx=ax+dx,by=ay+dy;if(bx>C-1||by<1||by>R-1)continue;
+      const [sx,sy]=kind==='par'?[dx,dy]:[-dy,dx];const px=ri(1,C-1),py=ri(1,R-1);if(onLine(px,py,ax,ay,dx,dy))continue;if(Math.abs(px-ax)+Math.abs(py-ay)<3||Math.abs(px-bx)+Math.abs(py-by)<3)continue;
+      const k1=[1,2].find(t=>{const x1=px-t*sx,y1=py-t*sy,x2=px+t*sx,y2=py+t*sy;return x1>=0&&x2>=0&&x1<=C&&x2<=C&&y1>=0&&y2>=0&&y1<=R&&y2<=R});if(!k1)continue;
+      const base=dLn(ax,ay,bx,by)+dPt(ax,ay,'A')+dPt(bx,by,'B')+dPt(px,py,kind==='par'?'P':'Q');
+      const sol=dLn(px-k1*sx,py-k1*sy,px+k1*sx,py+k1*sy,'psol');
+      return{q:kind==='par'?`Draw a straight line through <b>P</b> that is <b>parallel</b> to AB.`:`Draw a straight line through <b>Q</b> that is <b>perpendicular</b> to AB.`,fig:dgGrid(C,R,base,'Grid'),key:dgGrid(C,R,base+sol,'Answer'),note:kind==='par'?`Same steps as AB: ${Math.abs(dx)} across, ${Math.abs(dy)} ${dy<0?'up':'down'}.`:'Turn the steps of AB a right angle.'}}}
+  if(kind==='rect'){const opts=[[12,4],[12,6],[18,6],[16,8],[20,5],[24,6],[15,5],[14,7],[10,5],[21,7]],[A,L]=pick(opts),B=A/L;
+    const sol=`<rect class="psolr" x="${gx(2)}" y="${gy(2)}" width="${L*DG}" height="${B*DG}"/>`;
+    return{q:`Each square is 1 cm by 1 cm. Draw a rectangle with an area of <b>${A} cm²</b> and a length of <b>${L} cm</b>.`,fig:dgGrid(C,R,'','Grid'),key:dgGrid(C,R,sol,'Answer'),note:`Breadth = ${A} ÷ ${L} = ${B} cm.`}}
+  if(kind==='sq'){const s=ri(2,5),p=4*s;const sol=`<rect class="psolr" x="${gx(3)}" y="${gy(2)}" width="${s*DG}" height="${s*DG}"/>`;
+    return{q:`Each square is 1 cm by 1 cm. Draw a square with a perimeter of <b>${p} cm</b>.`,fig:dgGrid(C,R,'','Grid'),key:dgGrid(C,R,sol,'Answer'),note:`Side = ${p} ÷ 4 = ${s} cm.`}}
+  if(kind==='rperim'){const opts=[[14,4],[16,5],[18,6],[20,7],[12,4],[22,8]],[P,L]=pick(opts),B=P/2-L;const sol=`<rect class="psolr" x="${gx(2)}" y="${gy(2)}" width="${L*DG}" height="${B*DG}"/>`;
+    return{q:`Each square is 1 cm by 1 cm. Draw a rectangle with a perimeter of <b>${P} cm</b> and a length of <b>${L} cm</b>.`,fig:dgGrid(C,R,'','Grid'),key:dgGrid(C,R,sol,'Answer'),note:`Length + breadth = ${P} ÷ 2 = ${P/2}. Breadth = ${P/2} − ${L} = ${B} cm.`}}
+  if(kind==='bar'){const cats=pick([['Mon','Tue','Wed','Thu','Fri'],['Apple','Pear','Kiwi','Mango','Grape'],['Red','Blue','Green','Pink','White']]),st=pick([5,10,20]),vals=cats.map(()=>st*ri(1,8)),miss=shuffle([0,1,2,3,4]).slice(0,2).sort();
+    const W=360,H=230,x0=50,y0=190,top=8*st,yv=v=>y0-v/top*160,bw=40;let ax='';for(let v=0;v<=top;v+=st*2)ax+=`<line class="pgl" x1="${x0}" y1="${yv(v)}" x2="${W-10}" y2="${yv(v)}"/><text class="ptxt" x="${x0-6}" y="${yv(v)+4}" text-anchor="end">${v}</text>`;
+    for(let v=st;v<=top;v+=st*2)ax+=`<line class="pgl pgl2" x1="${x0}" y1="${yv(v)}" x2="${W-10}" y2="${yv(v)}"/>`;
+    const bars=sol=>cats.map((c,i)=>{const x=x0+14+i*58;return `${(!miss.includes(i)||sol)?`<rect class="${miss.includes(i)?'psolr':'pbar'}" x="${x}" y="${yv(vals[i])}" width="${bw}" height="${y0-yv(vals[i])}"/>`:''}<text class="ptxt" x="${x+bw/2}" y="${y0+16}" text-anchor="middle">${c}</text>`}).join('');
+    const mk=sol=>`<svg class="dgsvg" viewBox="0 0 ${W} ${H}" width="${W}" role="img" aria-label="Bar graph">${ax}<line class="pln" x1="${x0}" y1="${y0}" x2="${W-10}" y2="${y0}"/><line class="pln" x1="${x0}" y1="${y0}" x2="${x0}" y2="18"/>${bars(sol)}</svg>`;
+    const tab=`<table class="ptab"><tr>${cats.map(c=>`<th>${c}</th>`).join('')}</tr><tr>${vals.map(v=>`<td>${v}</td>`).join('')}</tr></table>`;
+    return{q:`The table shows the results. Complete the bar graph by drawing the bars for <b>${miss.map(i=>cats[i]).join('</b> and <b>')}</b>.${tab}`,fig:mk(false),key:mk(true),note:`Each small line on the scale stands for ${st}.`}}
+}
+function printDraw(L){const kinds=['par','perp','par','perp','rect','sq','rperim','bar'];const items=kinds.map(drawTask);
+  const qs=items.map((it,i)=>`<div class="pq"><div class="pqh"><b>${i+1}.</b></div><div class="pqt">${it.q}</div><div class="pfig">${it.fig}</div></div>`).join('');
+  const key=items.map((it,i)=>`<div class="pk pkd"><b>${i+1}.</b> <small>${it.note}</small><div class="pfig">${it.key}</div></div>`).join('');
+  S.view='print';S.printFrom='parents';document.body.classList.add('printing');
+  app.innerHTML=`<div class="no-print ptools"><button class="back" data-act="unprint">← Back</button><button class="btn" data-act="doprint">Print</button><span class="lvlnote">Drawing questions need a pencil and ruler. The answer key shows one correct drawing (other positions can also be right).</span></div>
+  <div class="printpaper"><div class="phead"><h2>P${L} Drawing Practice</h2><div>Name: ____________________ &nbsp; Date: ___________ &nbsp; Use a sharp pencil and a ruler.</div></div>${qs}<div class="pkey"><h2>Answer key · P${L} Drawing Practice</h2>${key}</div></div>`;window.scrollTo(0,0)}
+const _gA16=gymAct;gymAct=function(a,el){if(a==='pdraw'){printDraw(S.lvl);return true}
+  if(a==='tdraw'&&S.topic){printDraw(S.topic.lvl);S.printFrom='topic';return true}
+  if(a==='unprint'&&S.printFrom==='topic'&&S.view==='print'){S.printFrom=null;document.body.classList.remove('printing');S.view='topic';topicView();window.scrollTo(0,0);return true}
+  return _gA16(a,el)};
+const _skP16=skPractice;skPractice=function(){_skP16();const t=S.topic;if(!t||!['p3_lines','p3_bargraph','p3_area','p4_rect'].includes(t.id))return;const b=app.querySelector('[data-act="topicprint"]');if(b&&!app.querySelector('[data-act="tdraw"]'))b.insertAdjacentHTML('afterend',`<button class="btn ghost small" data-act="tdraw">Print drawing practice</button>`)};
 
 applyFreeze();applyDevice();renderLevels();hud();home();welcome();
 
